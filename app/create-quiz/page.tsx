@@ -1,11 +1,12 @@
 'use client'
+import { log } from 'console'
 import { useState, useEffect } from 'react'
 
 export default function NewExam() {
  const [numOfQues, setNumOfQues] = useState(5)
   const [config,setConfig] = useState({ title: '', durationMinutes: 10, startTime: '', endTime: '' ,totalMarks: 100,marksPerQues: 20,password: ''})
   const [questions, setQuestions] = useState(() => Array.from({ length: numOfQues }).map((_, i) => ({ text: `Question ${i + 1}`, serial: i + 1, choices: [{ text: 'Option A', isCorrect: i === 0 }, { text: 'Option B' }, { text: 'Option C' }, { text: 'Option D' }] })))
-
+  const userId="1234";
   useEffect(() => {
     setQuestions(prev => {
       const prevLen = prev.length
@@ -28,18 +29,20 @@ export default function NewExam() {
     e.preventDefault()
     
     const quizData={
+      userId,
       config,
       questions,
     }
-    console.log(quizData);
+    // console.log(quizData.questions.flat());
     // message:"created"
-    // const res = await fetch('/api/exams', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ title, durationMinutes: 10, questions }) })
-    // const data = await res.json()
-    // if (res.ok) {
-    //   setJoinCode(data.joinCode)
-    // } else {
-    //   alert(data.error || 'Failed')
-    // }
+    const res = await fetch('/api/exams', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(quizData) })
+    const data = await res.json()
+    if (res.ok) {
+      message: 'created'
+      // setJoinCode(data.joinCode)
+    } else {
+      alert(data.error || 'Failed')
+    }
   }
 
   return (
