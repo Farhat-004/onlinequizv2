@@ -33,13 +33,12 @@ export default function NewExam() {
       config,
       questions,
     }
-    // console.log(quizData.questions.flat());
-    // message:"created"
+   
     const res = await fetch('/api/exams', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(quizData) })
     const data = await res.json()
     if (res.ok) {
-      message: 'created'
-      // setJoinCode(data.joinCode)
+      setJoinCode(data.joinCode)
+      console.log(data?.joinCode)
     } else {
       alert(data.error || 'Failed')
     }
@@ -53,8 +52,13 @@ export default function NewExam() {
           <h2 className="text-lg font-semibold mb-4">Quiz Builder</h2>
           <form onSubmit={handleCreate} className="space-y-1">
             {/* custom config */}
+           <span className='gap-2 flex'>
+             <label className="text-sm font-medium mt-1 text-gray-300 w-40">Quiz Tittle :</label>
+                <input value={config.title} type='text' onChange={e => setConfig({...config, title: e.target.value})} className="flex-1 border p-2 rounded" required={true}/>
+               
+           </span>
                 <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-gray-300 w-40">Duration (Minutes)</label>
+                 <label className="text-sm font-medium text-gray-300 w-40">Duration (Minutes)</label>
                 <input value={config.durationMinutes} type='number' onChange={e => {
                   const v = e.target.value
                   const n = v === '' ? 0 : parseInt(v, 10) || 0
@@ -112,7 +116,7 @@ export default function NewExam() {
               <button onClick={()=>{setNumOfQues(prev=>prev+1)}} className="px-4 py-2 bg-yellow-600 text-white rounded">Add +1</button>
               <button onClick={()=>{setNumOfQues(prev=>prev+5)}} className="px-4 py-2 bg-yellow-600 text-white rounded">Add +5</button>
               <button onClick={()=>{setNumOfQues(prev=>prev-1)}} className="px-4 py-2 bg-red-600 text-white rounded">Remove -1</button>
-              {joinCode && <div className="p-2 bg-gray-100 rounded">Join Code: <strong>{joinCode}</strong></div>}
+              {joinCode && <div className="p-2 bg-blue-500 rounded">Join Code: <strong>{joinCode}</strong></div>}
             </div>
           </form>
         </div>
