@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema({
         default: "user",
     },
     institute: { type: String, required: false },
+    image: String,
     timestamps: true,
 });
 const User = mongoose.models.User || mongoose.model("User", userSchema);
