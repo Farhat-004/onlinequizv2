@@ -35,6 +35,7 @@ export default function NewExam() {
     }
    
     const res = await fetch('/api/exams', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(quizData) })
+    if(res.status==401) alert("failed")
     const data = await res.json()
     if (res.ok) {
       setJoinCode(data.joinCode)

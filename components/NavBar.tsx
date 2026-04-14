@@ -7,6 +7,7 @@ export default function NavBar() {
       <div className="flex gap-3">
         <Link href={'/create-quiz'} className="text-sm text-gray-600">Create Quiz</Link>
         <Link href={'/quiz'} className="text-sm text-gray-600">Exam</Link>
+        <Link href={'/signin'} className="text-sm text-gray-600">Sign-in</Link>
         <button className="text-sm text-gray-600">Feedback</button>
         <button className="text-sm text-gray-600">Report</button>
       </div>
