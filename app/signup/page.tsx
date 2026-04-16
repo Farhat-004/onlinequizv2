@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import {  } from 'next/navigation';
 
 export default function SignUpPage() {
-  const router = useRouter();
+  const router = ();
   const [formData, setFormData] = useState({
     name: '',
     email: '',

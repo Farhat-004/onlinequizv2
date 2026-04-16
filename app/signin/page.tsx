@@ -1,9 +1,9 @@
-"use client"
+'use client'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
-
-export default function Signin() {
+import {signIn} from "@/auth"
+export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const router=useRouter();
@@ -79,14 +79,22 @@ export default function Signin() {
             </button>
 
           </form>
-          <p className='text-sm text-gray-800 mt-4'>
+          <p className='text-sm text-white-800 mt-4'>
             Don't have an account?{' '}
             <Link href="/signup" className='text-blue-500 hover:text-blue-700'>
               Sign up
             </Link>
           </p>
+          <button onClick={async()=>await signIn("google")} className='w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600 mt-4'>
+              Sign In with Google
+            </button>
+          {error && <p className='text-red-500 mt-4'>{error}</p>}
         </div>
+        
     </div>
     
   )
 }
+
+
+
