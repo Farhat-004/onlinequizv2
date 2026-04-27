@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
-import {signIn} from "@/auth"
+import { signIn } from 'next-auth/react'
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -10,7 +10,7 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);  
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -46,7 +46,11 @@ export default function Login() {
     }
   };
 
-
+const handleSignin=async () => {
+  await signIn("google",{
+    callbackUrl:"/",
+  })
+}
   return (
     <div className='text-center flex flex-row items-center justify-center mt-40 w-full  bg-gray-800'>
         <div className='bg-gray-800 w-1/3 p-8 rounded-lg'>
@@ -80,12 +84,12 @@ export default function Login() {
 
           </form>
           <p className='text-sm text-white-800 mt-4'>
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link href="/signup" className='text-blue-500 hover:text-blue-700'>
               Sign up
             </Link>
           </p>
-          <button onClick={async()=>await signIn("google")} className='w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600 mt-4'>
+          <button onClick={handleSignin} className='w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600 mt-4'>
               Sign In with Google
             </button>
           {error && <p className='text-red-500 mt-4'>{error}</p>}

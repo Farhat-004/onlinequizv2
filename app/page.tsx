@@ -1,6 +1,9 @@
+import { auth } from '@/auth'
 import Link from 'next/link'
 
-export default function Home() {
+export default async function Home() {
+  const session=await auth()
+  if(session)console.log(session)
   return (
     <div className="min-h-screen flex items-center justify-center home-bg">
       <div className="max-w-xl w-full p-8 bg-white rounded shadow">

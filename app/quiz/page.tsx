@@ -2,7 +2,7 @@
 import MCQQuestion from "@/components/MCQQuestion";
 
 
-export default function Quiz() {
+export default  function Quiz() {
   return (
     <section>
         <h2 className="text-center pt-3">Quiz Name</h2>
