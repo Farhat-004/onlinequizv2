@@ -1,42 +1,59 @@
-import { useState } from 'react'
+type Choice = {
+  text: string
+}
+
+type Question = {
+  _id?: string
+  index?: number
+  text: string
+  choices: Choice[]
+}
+
+export type QuestionResult = {
+  correctIndex: number
+  selectedIndex: number | null
+}
 
 export default function MCQQuestion({
   question,
-  selected,
+  selectedIndex,
   onSelect,
+  disabled,
   result,
 }: {
-  question: any
-  selected?: string | null
-  onSelect?: (choiceId: string) => void
-  result?: { correct: boolean; correctChoiceId?: string } | null
+  question: Question
+  selectedIndex: number | null
+  onSelect: (choiceIndex: number) => void
+  disabled?: boolean
+  result?: QuestionResult | null
 }) {
-  const [local, setLocal] = useState<string | null>(selected || null)
+  function getChoiceClass(choiceIndex: number) {
+    const isSelected = selectedIndex === choiceIndex
+    if (!result) return isSelected ? 'bg-blue-50 border-blue-300' : 'bg-white'
 
-  function handleClick(id: string) {
-    setLocal(id)
-    onSelect && onSelect(id)
+    const isCorrectChoice = choiceIndex === result.correctIndex
+    if (isCorrectChoice) return 'bg-green-50 border-green-300'
+    if (isSelected && !isCorrectChoice) return 'bg-red-50 border-red-300'
+    return 'bg-white'
   }
 
   return (
-    <div className="p-4 border rounded mb-3">
-      <div className="mb-2 font-medium">{question?.index}.  {" "}{question?.text }</div>
+    <div className="p-4 border rounded mb-3 bg-white">
+      <div className="mb-2 font-medium text-black">
+        {question?.index}. {question?.text}
+      </div>
       <div className="grid gap-2">
-        {(question?.choices || []).map((c: any) => {
-          let extra = 'bg-white'
-          if (result && result.correctChoiceId) {
-            if (c.id === result.correctChoiceId) extra = 'bg-yellow-100'
-            if (local === c.id && result.correct) extra = 'bg-green-100'
-            if (local === c.id && !result.correct && c.id !== result.correctChoiceId) extra = 'bg-red-100'
-          } else {
-            if (local === c.id) extra = 'bg-blue-500'
-          }
-          return (
-            <button key={c.id} onClick={() => handleClick(c.id)} className={`text-left p-3 text-taupe-950 rounded border ${extra}`}>
-              {c.text || 'Image choice'}
-            </button>
-          )
-        })}
+        {(question?.choices || []).map((c, idx) => (
+          <button
+            key={`${question?._id || 'q'}:${idx}`}
+            type="button"
+            disabled={disabled}
+            onClick={() => onSelect(idx)}
+            className={`text-left p-3 rounded border text-black disabled:opacity-60 ${getChoiceClass(idx)}`}
+          >
+            {c?.text}
+          </button>
+        ))}
       </div>
     </div>
   )

@@ -71,7 +71,7 @@ export async function POST(request) {
         );
     }
 }
-export async function GET(req, res) {
+export async function GET(req) {
     dbConnect();
     const { searchParams } = new URL(req.url);
     const joinCode = searchParams.get("joinCode");
@@ -92,7 +92,13 @@ export async function GET(req, res) {
                 { status: 404 },
             );
         }
-        return Response.json(exam, { status: 200 });
+        const safe = exam.toObject({ virtuals: false });
+        safe.questions = (safe.questions || []).map((q) => ({
+            _id: q._id,
+            text: q.text,
+            choices: (q.choices || []).map((c) => ({ text: c.text })),
+        }));
+        return Response.json(safe, { status: 200 });
     } catch (error) {
         return Response.json(
             { message: error?.message || "Failed to fetch exam" },

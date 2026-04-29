@@ -2,15 +2,36 @@ import NextAuth from "next-auth"
 import Google from "next-auth/providers/google"
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
 import client from "@/lib/db"
-async function refreshAccessToken(token) {
+
+function getIdFromUnknownUser(user: unknown): string | null {
+    if (!user || typeof user !== "object") return null;
+    const record = user as Record<string, unknown>;
+    const id = record["id"];
+    if (typeof id === "string" && id.length > 0) return id;
+    const _id = record["_id"];
+    if (typeof _id === "string" && _id.length > 0) return _id;
+    return null;
+}
+
+type TokenShape = {
+    accessToken?: string;
+    accessTokenExpires?: number;
+    refreshToken?: string;
+    user?: unknown;
+    userId?: string;
+    error?: string;
+    sub?: string;
+};
+
+async function refreshAccessToken(token: TokenShape) {
     try {
         const url =
             "https://oauth2.googleapis.com/token?" +
             new URLSearchParams({
-                client_id: process.env.GOOGLE_CLIENT_ID,
-                client_secret: process.env.GOOGLE_CLIENT_SECRET,
+                client_id: String(process.env.AUTH_GOOGLE_ID),
+                client_secret: String(process.env.AUTH_GOOGLE_SECRET),
                 grant_type: "refresh_token",
-                refresh_token: token.refreshToken,
+                refresh_token: String(token.refreshToken),
             });
 
         const response = await fetch(url, {
@@ -30,19 +51,20 @@ async function refreshAccessToken(token) {
             ...token,
             accessToken: refreshedTokens?.access_token,
             accessTokenExpires: Date.now() + refreshedTokens?.expires_in * 1000,
-            refreshToken: refreshedTokens?.refresh_token,
-        };
+            refreshToken: refreshedTokens?.refresh_token ?? token.refreshToken,
+        } satisfies TokenShape;
     } catch (error) {
         console.log(error);
 
-        return {
-            ...token,
-            error: "RefreshAccessTokenError",
-        };
+        return { ...token, error: "RefreshAccessTokenError" } satisfies TokenShape;
     }
 }
 export const { handlers, auth, signIn, signOut } = NextAuth({
     adapter:MongoDBAdapter(client),
+    trustHost: true,
+    // Prevent PKCE verifier cookie from being marked `Secure` on local http,
+    // which can lead to "Invalid code verifier" during OAuth callback.
+    useSecureCookies: process.env.NODE_ENV === "production",
   providers: [Google({
     clientId: process.env.AUTH_GOOGLE_ID!,
     clientSecret: process.env.AUTH_GOOGLE_SECRET!,
@@ -56,36 +78,45 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   })],
 callbacks: {
         async jwt({ token, user, account }) {
-            console.log(`JWT token: ${JSON.stringify(token)}`);
-            console.log(`JWT Account: ${JSON.stringify(account)}`);
+            const t = token as unknown as TokenShape;
 
-            if (account && user) {
-                return {
-                    accessToken: account?.access_token,
-                    accessTokenExpires: Date.now() + account?.expires_in * 1000,
-                    refreshToken: account?.refresh_token,
-                    user,
-                };
+            if (account) {
+                t.accessToken = account?.access_token;
+                t.accessTokenExpires = Date.now() + (account?.expires_in ?? 0) * 1000;
+                t.refreshToken = account?.refresh_token;
             }
 
-            console.log(
-                `Token Will Expire at ${new Date(token.accessTokenExpires)})`
-            );
+            if (user) {
+                // Persist the adapter user id for server-side APIs
+                // (client code in this repo expects `session.userId`).
+                const userId = getIdFromUnknownUser(user);
+                if (userId) t.userId = userId;
+                t.user = user;
+            }
 
-            if (Date.now() < token?.accessTokenExpires) {
-                console.log(
-                    `At ${new Date(Date.now())}, Using old access token`
-                );
+            if (typeof t.accessTokenExpires === "number" && Date.now() < t.accessTokenExpires) {
                 return token;
             }
 
-            console.log(`Token Expired at ${new Date(Date.now())}`);
-            return refreshAccessToken(token);
+            if (!t.refreshToken) return token;
+            return (await refreshAccessToken(t)) as unknown as typeof token;
         },
         async session({ session, token }) {
-            session.user = token?.user;
-            session.accessToken = token?.access_token;
-            session.error = token?.error;
+            const t = (token as unknown as TokenShape) ?? {};
+            session.user = t.user as unknown as typeof session.user;
+            const sessionUserRecord =
+                (session.user && typeof session.user === "object") ?
+                    (session.user as unknown as Record<string, unknown>)
+                :   null;
+            const userId =
+                t.userId ??
+                t.sub ??
+                (typeof sessionUserRecord?.["id"] === "string" ?
+                    (sessionUserRecord["id"] as string)
+                :   null);
+            (session as unknown as Record<string, unknown>)["userId"] = userId;
+            (session as unknown as Record<string, unknown>)["accessToken"] = t.accessToken ?? null;
+            (session as unknown as Record<string, unknown>)["error"] = t.error ?? null;
 
             console.log(`Returning Session ${JSON.stringify(session)}`);
             return session;
