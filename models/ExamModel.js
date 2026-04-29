@@ -10,7 +10,7 @@ const ExamSchema = new mongoose.Schema({
     totalMarks: { type: Number },
     marksPerQues: { type: Number },
     title: { type: String, required: true },
-    password: { type: String, required: true },
+    password: { type: String, required: false },
     durationMinutes: { type: Number, required: true },
     startTime: { type: Date, required: true },
     endTime: { type: Date, required: true },

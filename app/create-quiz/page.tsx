@@ -1,12 +1,14 @@
 'use client'
-import { log } from 'console'
+import { useSession } from 'next-auth/react'
 import { useState, useEffect } from 'react'
 
 export default function NewExam() {
  const [numOfQues, setNumOfQues] = useState(5)
   const [config,setConfig] = useState({ title: '', durationMinutes: 10, startTime: '', endTime: '' ,totalMarks: 100,marksPerQues: 20,password: ''})
   const [questions, setQuestions] = useState(() => Array.from({ length: numOfQues }).map((_, i) => ({ text: `Question ${i + 1}`, serial: i + 1, choices: [{ text: 'Option A', isCorrect: i === 0 }, { text: 'Option B' }, { text: 'Option C' }, { text: 'Option D' }] })))
-  const userId="1234";
+  const session=useSession();
+  
+  const userId=session?.data?.userId
   useEffect(() => {
     setQuestions(prev => {
       const prevLen = prev.length
@@ -41,7 +43,7 @@ export default function NewExam() {
       setJoinCode(data.joinCode)
       console.log(data?.joinCode)
     } else {
-      alert(data.error || 'Failed')
+      alert(data.error )
     }
   }
 
@@ -53,9 +55,12 @@ export default function NewExam() {
           <h2 className="text-lg font-semibold mb-4">Quiz Builder</h2>
           <form onSubmit={handleCreate} className="space-y-1">
             {/* custom config */}
-           <span className='gap-2 flex'>
+           <span className='gap-2 flex-col md:flex-row flex'>
              <label className="text-sm font-medium mt-1 text-gray-300 w-40">Quiz Tittle :</label>
                 <input value={config.title} type='text' onChange={e => setConfig({...config, title: e.target.value})} className="flex-1 border p-2 rounded" required={true}/>
+               
+             <label className="text-sm font-medium mt-1 text-gray-300 w-40">Password :</label>
+                <input value={config.password} type='text' onChange={e => setConfig({...config, password: e.target.value})} className="flex-1 border p-2 rounded" required={true}/>
                
            </span>
                 <div className="flex items-center gap-2">
