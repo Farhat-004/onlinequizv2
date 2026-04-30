@@ -1,8 +1,7 @@
 "use client"
 import MCQQuestion from "@/components/MCQQuestion";
-import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type ExamQuestion = {
   _id: string
@@ -46,8 +45,7 @@ function formatTime(totalSeconds: number) {
 export default  function Quiz() {
   const searchParams=useSearchParams()
   const router = useRouter()
-  const session=useSession();
-  const userId=session?.data?.userId
+  
   const joinCode=searchParams.get("joinCode")
     const [exam,setExam]=useState<Exam | null>(null)
     const [answers,setAnswers]=useState<Record<string, number | null>>({})
@@ -67,11 +65,19 @@ export default  function Quiz() {
             for (const q of data.questions || []) initialAnswers[q._id] = null
             setAnswers(initialAnswers)
 
+            const now = Date.now()
             const endMs = data.endTime ? new Date(data.endTime).getTime() : null
-            const durationMs = typeof data.durationMinutes === "number" ? data.durationMinutes * 60_000 : null
-            const fallbackEndMs = durationMs ? Date.now() + durationMs : null
-            const effectiveEndMs = endMs ?? fallbackEndMs
-            if (effectiveEndMs) setTimeLeftSec(Math.max(0, Math.floor((effectiveEndMs - Date.now()) / 1000)))
+            const durationMs =
+              typeof data.durationMinutes === "number" ? data.durationMinutes * 60_000 : null
+
+            const effectiveEndMs =
+              endMs && endMs > now + 1000 ? endMs : durationMs ? now + durationMs : null
+
+            if (effectiveEndMs) {
+              setTimeLeftSec(Math.max(0, Math.floor((effectiveEndMs - now) / 1000)))
+            } else {
+              setTimeLeftSec(null)
+            }
           } catch (error) {
             const message =
               error instanceof Error ? error.message : "Failed to fetch questions"
@@ -89,7 +95,8 @@ export default  function Quiz() {
         const res = await fetch("/api/results", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ joinCode, answers, userId }),
+          credentials: "include",
+          body: JSON.stringify({ joinCode, answers }),
         })
         const bodyUnknown: unknown = await res.json().catch(() => ({}))
         const body = bodyUnknown as Partial<SubmitResponse> & {
@@ -104,18 +111,22 @@ export default  function Quiz() {
       } catch (err: unknown) {
         const message =
           err instanceof Error ? err.message : "Failed to submit result"
-        alert(message)
+        console.log(message)
+        // alert(message)
       } finally {
         setSubmitting(false)
       }
     }, [answers, joinCode, router, submitting, submitted])
 
 //timer
+    const prevTimeLeftRef = useRef<number | null>(null)
     useEffect(() => {
       if (timeLeftSec === null) return
       if (submitted) return
-      if (timeLeftSec <= 0) {
-        // Auto-submit when time ends
+      const prev = prevTimeLeftRef.current
+      prevTimeLeftRef.current = timeLeftSec
+      // Only auto-submit when we actually count down to 0 (not if we loaded an already-expired exam)
+      if (prev !== null && prev > 0 && timeLeftSec <= 0) {
         void handleSubmit()
         return
       }

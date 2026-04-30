@@ -41,7 +41,6 @@ export default function NewExam() {
     const data = await res.json()
     if (res.ok) {
       setJoinCode(data.joinCode)
-      console.log(data?.joinCode)
     } else {
       alert(data.error )
     }

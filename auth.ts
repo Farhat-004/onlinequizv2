@@ -101,24 +101,23 @@ callbacks: {
             if (!t.refreshToken) return token;
             return (await refreshAccessToken(t)) as unknown as typeof token;
         },
-        async session({ session, token }) {
+        async session({ session, token, user }) {
             const t = (token as unknown as TokenShape) ?? {};
-            session.user = t.user as unknown as typeof session.user;
-            const sessionUserRecord =
-                (session.user && typeof session.user === "object") ?
-                    (session.user as unknown as Record<string, unknown>)
-                :   null;
-            const userId =
-                t.userId ??
-                t.sub ??
-                (typeof sessionUserRecord?.["id"] === "string" ?
-                    (sessionUserRecord["id"] as string)
-                :   null);
-            (session as unknown as Record<string, unknown>)["userId"] = userId;
+
+            // With a database session strategy (common with adapters), `user` is provided
+            // and `token` may be undefined. Do not clobber `session.user` unless we have one.
+            if (t.user) {
+                session.user = t.user as unknown as typeof session.user;
+            }
+
+            const userIdFromUser = getIdFromUnknownUser(user);
+            const userIdFromSessionUser = getIdFromUnknownUser(session.user);
+            const userId = userIdFromUser ?? t.userId ?? t.sub ?? userIdFromSessionUser;
+
+            (session as unknown as Record<string, unknown>)["userId"] = userId ?? null;
             (session as unknown as Record<string, unknown>)["accessToken"] = t.accessToken ?? null;
             (session as unknown as Record<string, unknown>)["error"] = t.error ?? null;
 
-            console.log(`Returning Session ${JSON.stringify(session)}`);
             return session;
         },
     },

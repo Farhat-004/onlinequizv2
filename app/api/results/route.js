@@ -12,18 +12,16 @@ function asObjectIdString(v) {
 }
 
 export async function POST(request) {
-    // const session = await auth();
-    // const studentId = asObjectIdString(
-    //     session?.userId || session?.user?.id || session?.user?._id,
-    // );
-    // if (!studentId) {
-    //     return Response.json({ message: "Unauthorized" }, { status: 401 });
-    // }
+    const session = await auth();
+    const studentId = asObjectIdString(
+        session?.userId || session?.user?.id || session?.user?._id,
+    );
+    if (!studentId) {
+        return Response.json({ message: "Unauthorized" }, { status: 401 });
+    }
 
     const body = await request.json().catch(() => ({}));
     const joinCode = body?.joinCode;
-    const userId = body?.userId;
-    console.log("userid from body", userId);
     const answers =
         body?.answers && typeof body.answers === "object" ? body.answers : {};
 
@@ -42,7 +40,7 @@ export async function POST(request) {
     }
 
     const existing = await ResultModel.findOne({
-        studentId: asObjectIdString(userId),
+        studentId,
         examId: exam._id,
     }).lean();
     if (existing) {
@@ -108,7 +106,7 @@ export async function POST(request) {
     const score = Math.round(correctCount * marksPerQues);
 
     const resultDoc = await ResultModel.create({
-        studentId: asObjectIdString(userId),
+        studentId,
         examTittle: exam.title,
         examinerId: exam.userId,
         examId: exam._id,
