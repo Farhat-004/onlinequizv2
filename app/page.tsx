@@ -1,12 +1,10 @@
 "use server"
 import { auth } from '@/auth'
-import { redirect } from 'next/navigation'
 import JoinExam from '@/components/JoinExam'
+import LandingPage from '@/components/LandingPage'
 
 export default async function Home() {
   const user = await auth()
-  if(!user) redirect("/signin")
-  return (
-    <JoinExam />
-  )
+  if (!user) return <LandingPage />
+  return <JoinExam />
 }

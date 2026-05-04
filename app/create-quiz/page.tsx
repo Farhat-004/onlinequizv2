@@ -8,7 +8,7 @@ export default function NewExam() {
   const [questions, setQuestions] = useState(() => Array.from({ length: numOfQues }).map((_, i) => ({ text: `Question ${i + 1}`, serial: i + 1, choices: [{ text: 'Option A', isCorrect: i === 0 }, { text: 'Option B' }, { text: 'Option C' }, { text: 'Option D' }] })))
   const session=useSession();
   
-  const userId=session?.data?.userId
+  const userId = (session?.data as unknown as { userId?: string | null } | null)?.userId ?? null
   useEffect(() => {
     setQuestions(prev => {
       const prevLen = prev.length

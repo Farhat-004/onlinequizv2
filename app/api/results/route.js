@@ -135,3 +135,50 @@ export async function POST(request) {
         { status: 201 },
     );
 }
+
+export async function GET(req) {
+    const session = await auth();
+    const studentId = asObjectIdString(
+        session?.userId || session?.user?.id || session?.user?._id,
+    );
+    if (!studentId) {
+        return Response.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const joinCode = searchParams.get("joinCode");
+    if (!joinCode) {
+        return Response.json(
+            { message: "joinCode is required" },
+            { status: 400 },
+        );
+    }
+
+    await dbConnect();
+    const exam = await ExamModel.findOne({ joinCode }).lean();
+    if (!exam) {
+        return Response.json({ message: "Exam not found" }, { status: 404 });
+    }
+
+    const existing = await ResultModel.findOne({
+        studentId,
+        examId: exam._id,
+    }).lean();
+
+    if (!existing) {
+        return Response.json({ submitted: false }, { status: 200 });
+    }
+
+    return Response.json(
+        {
+            submitted: true,
+            message: "already_submitted",
+            resultId: asObjectIdString(existing?._id),
+            score: existing.score,
+            totalMarks: existing.totalMarks,
+            correctCount: existing.correctCount,
+            totalQuestions: existing.totalQuestions,
+        },
+        { status: 200 },
+    );
+}

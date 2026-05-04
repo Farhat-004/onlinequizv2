@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import {  } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 export default function SignUpPage() {
-  const router = ();
+  const router = useRouter();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -106,7 +106,7 @@ export default function SignUpPage() {
               Password *
             </label>
             <input
-              // type="password"
+              type="password"
               id="password"
               name="password"
               value={formData.password}
@@ -159,7 +159,7 @@ export default function SignUpPage() {
 
         <p className="text-center text-gray-600 mt-6">
           Already have an account?{' '}
-          <a href="/login" className="text-blue-600 hover:text-blue-700 font-medium">
+          <a href="/signin" className="text-blue-600 hover:text-blue-700 font-medium">
             Log in
           </a>
         </p>

@@ -2,6 +2,7 @@ import NextAuth from "next-auth"
 import Google from "next-auth/providers/google"
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
 import client from "@/lib/db"
+import { ObjectId } from "mongodb";
 
 function getIdFromUnknownUser(user: unknown): string | null {
     if (!user || typeof user !== "object") return null;
@@ -21,7 +22,25 @@ type TokenShape = {
     userId?: string;
     error?: string;
     sub?: string;
+    role?: string;
 };
+
+async function getUserRoleFromDb(id: string | null | undefined): Promise<string | null> {
+    if (!id) return null;
+    try {
+        const db = (await client).db();
+        const _id = ObjectId.isValid(id) ? new ObjectId(id) : null;
+        if (!_id) return null;
+        const user = await db.collection("users").findOne(
+            { _id },
+            { projection: { role: 1 } },
+        );
+        const role = (user as { role?: unknown } | null)?.role;
+        return typeof role === "string" && role.length > 0 ? role : null;
+    } catch {
+        return null;
+    }
+}
 
 async function refreshAccessToken(token: TokenShape) {
     try {
@@ -60,7 +79,7 @@ async function refreshAccessToken(token: TokenShape) {
     }
 }
 export const { handlers, auth, signIn, signOut } = NextAuth({
-    adapter:MongoDBAdapter(client),
+    adapter: MongoDBAdapter(client),
     trustHost: true,
     // Prevent PKCE verifier cookie from being marked `Secure` on local http,
     // which can lead to "Invalid code verifier" during OAuth callback.
@@ -94,6 +113,11 @@ callbacks: {
                 t.user = user;
             }
 
+            if (!t.role) {
+                const role = await getUserRoleFromDb(t.userId ?? t.sub ?? null);
+                if (role) t.role = role;
+            }
+
             if (typeof t.accessTokenExpires === "number" && Date.now() < t.accessTokenExpires) {
                 return token;
             }
@@ -117,6 +141,8 @@ callbacks: {
             (session as unknown as Record<string, unknown>)["userId"] = userId ?? null;
             (session as unknown as Record<string, unknown>)["accessToken"] = t.accessToken ?? null;
             (session as unknown as Record<string, unknown>)["error"] = t.error ?? null;
+            (session as unknown as Record<string, unknown>)["role"] =
+                t.role ?? (await getUserRoleFromDb(userId ?? null)) ?? "student";
 
             return session;
         },
