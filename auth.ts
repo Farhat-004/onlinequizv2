@@ -2,7 +2,7 @@ import NextAuth from "next-auth"
 import Google from "next-auth/providers/google"
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
 import client from "@/lib/db"
-import { ObjectId } from "mongodb";
+import { getUserRoleStateFromDb } from "@/lib/userRoles"
 
 function getIdFromUnknownUser(user: unknown): string | null {
     if (!user || typeof user !== "object") return null;
@@ -24,23 +24,6 @@ type TokenShape = {
     sub?: string;
     role?: string;
 };
-
-async function getUserRoleFromDb(id: string | null | undefined): Promise<string | null> {
-    if (!id) return null;
-    try {
-        const db = (await client).db();
-        const _id = ObjectId.isValid(id) ? new ObjectId(id) : null;
-        if (!_id) return null;
-        const user = await db.collection("users").findOne(
-            { _id },
-            { projection: { role: 1 } },
-        );
-        const role = (user as { role?: unknown } | null)?.role;
-        return typeof role === "string" && role.length > 0 ? role : null;
-    } catch {
-        return null;
-    }
-}
 
 async function refreshAccessToken(token: TokenShape) {
     try {
@@ -89,11 +72,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     clientSecret: process.env.AUTH_GOOGLE_SECRET!,
      authorization: {
         params: {
-          prompt: "consent",
+          // "select_account" forces Google’s account picker so sign-in is not silently
+          // bound to whichever Google profile is already active in the browser.
+          prompt: "select_account consent",
           access_type: "offline",
-          response_type: "code"
-        }
-      }
+          response_type: "code",
+        },
+      },
   })],
 callbacks: {
         async jwt({ token, user, account }) {
@@ -111,11 +96,14 @@ callbacks: {
                 const userId = getIdFromUnknownUser(user);
                 if (userId) t.userId = userId;
                 t.user = user;
+                // New sign-in (or account switch): do not reuse role from a previous user
+                // merged into the same JWT object.
+                delete t.role;
             }
 
             if (!t.role) {
-                const role = await getUserRoleFromDb(t.userId ?? t.sub ?? null);
-                if (role) t.role = role;
+                const state = await getUserRoleStateFromDb(t.userId ?? t.sub ?? null);
+                t.role = state.activeRole;
             }
 
             if (typeof t.accessTokenExpires === "number" && Date.now() < t.accessTokenExpires) {
@@ -141,8 +129,11 @@ callbacks: {
             (session as unknown as Record<string, unknown>)["userId"] = userId ?? null;
             (session as unknown as Record<string, unknown>)["accessToken"] = t.accessToken ?? null;
             (session as unknown as Record<string, unknown>)["error"] = t.error ?? null;
-            (session as unknown as Record<string, unknown>)["role"] =
-                t.role ?? (await getUserRoleFromDb(userId ?? null)) ?? "student";
+            const roleState = await getUserRoleStateFromDb(userId ?? null);
+            const sess = session as unknown as Record<string, unknown>;
+            sess["role"] = roleState.activeRole;
+            sess["roles"] = roleState.roles;
+            sess["hasBothRoles"] = roleState.hasBothRoles;
 
             return session;
         },

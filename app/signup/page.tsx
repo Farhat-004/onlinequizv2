@@ -130,6 +130,7 @@ export default function SignUpPage() {
               <option value="">Select a role</option>
               <option value="teacher">Teacher</option>
               <option value="student">Student</option>
+              <option value="both">Teacher and student</option>
             </select>
           </div>
 

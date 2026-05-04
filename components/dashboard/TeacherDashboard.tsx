@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import DashboardRoleSwitcher from "@/components/DashboardRoleSwitcher";
 import ExamSection from "./TeacherExamSection";
 
 type UserInfo = { name: string; email: string; image?: string; role: "teacher" | "student" };
@@ -17,11 +18,13 @@ export type TeacherExam = {
 };
 
 export default function TeacherDashboard({
+  hasBothRoles,
   user,
   upcoming,
   ongoing,
   past,
 }: {
+  hasBothRoles: boolean;
   user: UserInfo;
   upcoming: TeacherExam[];
   ongoing: TeacherExam[];
@@ -39,6 +42,7 @@ export default function TeacherDashboard({
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto p-6">
+        <DashboardRoleSwitcher hasBothRoles={hasBothRoles} />
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="text-sm text-gray-600">Dashboard</div>

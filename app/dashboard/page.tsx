@@ -18,6 +18,11 @@ function getRoleFromSession(session: unknown): "teacher" | "student" {
   return role === "teacher" ? "teacher" : "student";
 }
 
+function getHasBothRoles(session: unknown): boolean {
+  const s = session as Record<string, unknown> | null;
+  return Boolean(s?.hasBothRoles);
+}
+
 export default async function DashboardPage() {
   const session = await auth();
   if (!session) redirect("/signin");
@@ -29,6 +34,7 @@ export default async function DashboardPage() {
   const now = new Date();
 
   const role = getRoleFromSession(session);
+  const hasBothRoles = getHasBothRoles(session);
 
   if (role === "teacher") {
     const exams = await ExamModel.find({ userId }).sort({ startTime: -1 }).lean();
@@ -54,6 +60,7 @@ export default async function DashboardPage() {
 
     return (
       <TeacherDashboard
+        hasBothRoles={hasBothRoles}
         user={{
           name: (session as any)?.user?.name ?? "Teacher",
           email: (session as any)?.user?.email ?? "",
@@ -96,6 +103,7 @@ export default async function DashboardPage() {
 
   return (
     <StudentDashboard
+      hasBothRoles={hasBothRoles}
       user={{
         name: (session as any)?.user?.name ?? "Student",
         email: (session as any)?.user?.email ?? "",

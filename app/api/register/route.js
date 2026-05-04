@@ -5,12 +5,23 @@ export async function POST(req, res) {
     const userData = await req.json();
     console.log("Received user data:", userData);
     dbConnect();
-    const newUser = {
-        name: userData.name,
-        email: userData.email,
-        password: userData.password,
-        role: userData.role || "user",
-    };
+    const rawRole = userData.role || "user";
+    const newUser =
+        rawRole === "both"
+            ? {
+                  name: userData.name,
+                  email: userData.email,
+                  password: userData.password,
+                  roles: ["teacher", "student"],
+                  activeRole: "teacher",
+                  role: "teacher",
+              }
+            : {
+                  name: userData.name,
+                  email: userData.email,
+                  password: userData.password,
+                  role: rawRole,
+              };
 
     try {
         const response = await User.create(newUser);

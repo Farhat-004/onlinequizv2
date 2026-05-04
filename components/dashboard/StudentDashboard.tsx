@@ -1,5 +1,6 @@
 "use client";
 
+import DashboardRoleSwitcher from "@/components/DashboardRoleSwitcher";
 import PerformanceCircle from "./performance/PerformanceCircle";
 
 type UserInfo = { name: string; email: string; image?: string; role: "teacher" | "student" };
@@ -21,10 +22,12 @@ function fmtDate(iso: string | null) {
 }
 
 export default function StudentDashboard({
+  hasBothRoles,
   user,
   averagePercent,
   pastExams,
 }: {
+  hasBothRoles: boolean;
   user: UserInfo;
   averagePercent: number;
   pastExams: PastExam[];
@@ -32,6 +35,7 @@ export default function StudentDashboard({
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto p-6">
+        <DashboardRoleSwitcher hasBothRoles={hasBothRoles} />
         <div className="grid gap-6 md:grid-cols-3">
           <div className="md:col-span-2 bg-white border rounded-xl p-5">
             <div className="flex items-center justify-between">

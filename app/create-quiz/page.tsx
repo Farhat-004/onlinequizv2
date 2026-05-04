@@ -47,7 +47,7 @@ export default function NewExam() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-500">
+    <div className="min-h-screen max-h-[90vh] bg-gray-500">
       <header className="bg-gray-800 shadow p-4">Create Quiz</header>
       <main className="p-6 bg-amber-300">
         <div className="max-w-4xl mx-auto bg-gray-700 p-6 rounded shadow">
@@ -62,14 +62,7 @@ export default function NewExam() {
                 <input value={config.password} type='text' onChange={e => setConfig({...config, password: e.target.value})} className="flex-1 border p-2 rounded" required={true}/>
                
            </span>
-                <div className="flex items-center gap-2">
-                 <label className="text-sm font-medium text-gray-300 w-40">Duration (Minutes)</label>
-                <input value={config.durationMinutes} type='number' onChange={e => {
-                  const v = e.target.value
-                  const n = v === '' ? 0 : parseInt(v, 10) || 0
-                  setConfig({...config, durationMinutes: n})
-                }} className="flex-1 border p-2 rounded" />
-                </div>
+                
                 <div className="flex items-center gap-2">
                 <label className="text-sm font-medium text-gray-300 w-40">Marks Per Question </label>
                 <input value={config.marksPerQues} type='number' onChange={e => {
