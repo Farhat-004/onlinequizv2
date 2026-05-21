@@ -18,7 +18,7 @@ export default function NavBar() {
   const canTeach = roles.includes("teacher");
 
   const [mobileOpen, setMobileOpen] = useState(false);
-
+  console.log("navbar user", user)
   return (
     <nav className="w-full bg-white shadow p-4 flex justify-between items-center relative">
       <Link href={"/"} className="font-semibold text-black">

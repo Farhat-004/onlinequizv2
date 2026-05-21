@@ -81,7 +81,7 @@ export default function JoinExam() {
             type="text"
             name="joinCode"
             required
-            className='text-black border-amber-700 px-2'
+            className='text-black border-amber-700 border-2 rounded-sm px-2 active:border-green-400'
           />
           <label className='text-black'>Password:</label>
           <input
@@ -90,7 +90,7 @@ export default function JoinExam() {
             type="password"
             name="password"
             required
-            className='text-black border-amber-700 px-2'
+            className='text-black border-amber-700 border-2 rounded-sm px-2 active:border-green-400'
           />
           <div className="sm:col-span-2">
             <button type="submit" className="px-4 py-2 bg-amber-600 text-white rounded">

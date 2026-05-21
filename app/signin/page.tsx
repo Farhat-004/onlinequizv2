@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
-import { signIn } from 'next-auth/react'
+import { signIn, signOut } from 'next-auth/react'
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -47,9 +47,23 @@ export default function Login() {
   };
 
 const handleSignin=async () => {
-  await signIn("google",{
-    callbackUrl:"/",
-  })
+  setError('')
+  setLoading(true)
+  try {
+    // Ensure we don't reuse an existing NextAuth session from a previous Google account.
+    await signOut({ redirect: false })
+    await signIn(
+      "google",
+      { callbackUrl: "/" },
+      // Force Google's account picker instead of silently using the last authorized account.
+      { prompt: "select_account" },
+    )
+  } catch (err) {
+    console.error(err)
+    setError('Google sign-in failed. Please try again.')
+  } finally {
+    setLoading(false)
+  }
 }
   return (
     <div className='text-center flex flex-row items-center justify-center mt-40 w-full  bg-gray-800'>
@@ -89,7 +103,7 @@ const handleSignin=async () => {
               Sign up
             </Link>
           </p>
-          <button onClick={handleSignin} className='w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600 mt-4'>
+          <button disabled={loading} onClick={handleSignin} className='w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600 mt-4 disabled:opacity-60'>
               Sign In with Google
             </button>
           {error && <p className='text-red-500 mt-4'>{error}</p>}

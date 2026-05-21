@@ -3,25 +3,24 @@ import User from "../../../models/UserModel";
 export async function POST(req, res) {
     const { dbConnect } = await import("../../../lib/mongodb");
     const userData = await req.json();
-    console.log("Received user data:", userData);
     dbConnect();
     const rawRole = userData.role || "user";
     const newUser =
-        rawRole === "both"
-            ? {
-                  name: userData.name,
-                  email: userData.email,
-                  password: userData.password,
-                  roles: ["teacher", "student"],
-                  activeRole: "teacher",
-                  role: "teacher",
-              }
-            : {
-                  name: userData.name,
-                  email: userData.email,
-                  password: userData.password,
-                  role: rawRole,
-              };
+        rawRole === "both" ?
+            {
+                name: userData.name,
+                email: userData.email,
+                password: userData.password,
+                roles: ["teacher", "student"],
+                activeRole: "teacher",
+                role: "teacher",
+            }
+        :   {
+                name: userData.name,
+                email: userData.email,
+                password: userData.password,
+                role: rawRole,
+            };
 
     try {
         const response = await User.create(newUser);
@@ -32,7 +31,6 @@ export async function POST(req, res) {
             },
         );
     } catch (error) {
-        console.log(error.message);
         return new Response(
             JSON.stringify({ message: error.message || "failed" }),
             {

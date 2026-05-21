@@ -74,7 +74,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         params: {
           // "select_account" forces Google’s account picker so sign-in is not silently
           // bound to whichever Google profile is already active in the browser.
-          prompt: "select_account consent",
+          prompt: "consent select_account",
           access_type: "offline",
           response_type: "code",
         },
@@ -116,10 +116,11 @@ callbacks: {
         async session({ session, token, user }) {
             const t = (token as unknown as TokenShape) ?? {};
 
-            // With a database session strategy (common with adapters), `user` is provided
-            // and `token` may be undefined. Do not clobber `session.user` unless we have one.
+            // Always prioritize token user data to ensure we have the current user
             if (t.user) {
                 session.user = t.user as unknown as typeof session.user;
+            } else if (user) {
+                session.user = user as unknown as typeof session.user;
             }
 
             const userIdFromUser = getIdFromUnknownUser(user);

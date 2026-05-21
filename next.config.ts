@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Explicit empty turbopack config prevents Next from erroring when Turbopack
+  // is used as the default builder while allowing a custom `webpack` hook
+  // to remain for webpack-based builds.
+  turbopack: {},
   typescript: {
     // `next build` typecheck spawn can fail with EPERM on some Windows setups.
     // We run `npx tsc --noEmit` separately when needed.
