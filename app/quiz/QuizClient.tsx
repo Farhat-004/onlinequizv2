@@ -67,8 +67,9 @@ export default function QuizClient() {
           { credentials: "include" },
         )
         if (statusRes.ok) {
-          const statusJson = (await statusRes.json().catch(() => ({}))) as any
-          if (statusJson?.submitted && statusJson?.resultId) {
+          const statusJsonUnknown: unknown = await statusRes.json().catch(() => ({}))
+          const statusJson = statusJsonUnknown as { submitted?: unknown; resultId?: unknown }
+          if (Boolean(statusJson?.submitted) && statusJson?.resultId) {
             setBlockedMessage("You have already participated in this exam.")
             router.replace(
               `/quiz/result?resultId=${encodeURIComponent(String(statusJson.resultId))}`,
@@ -167,15 +168,19 @@ export default function QuizClient() {
   }
 
   return (
-    <section>
-      <div className="flex items-center justify-between px-4 pt-3">
-        <h2 className="text-center font-semibold">{exam?.title || "Quiz"}</h2>
-        <div className=" font-mono">
-          Time left : {timeLeftSec === null ? "—:—" : formatTime(timeLeftSec)}
+    <section className="min-h-screen app-bg">
+      <div className="max-w-4xl mx-auto px-4 pt-6">
+        <div className="glass-card px-5 py-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <div className="text-xs font-semibold tracking-wide text-slate-500 uppercase">Exam</div>
+            <h2 className="text-xl font-bold text-slate-900 truncate">{exam?.title || "Quiz"}</h2>
+          </div>
+          <div className="badge font-mono">
+            Time left: {timeLeftSec === null ? "—:—" : formatTime(timeLeftSec)}
+          </div>
         </div>
-      </div>
       {blockedMessage ? (
-        <div className="mx-4 mt-4 rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+        <div className="mt-4 rounded-2xl border border-indigo-200 bg-indigo-50 p-3 text-sm text-indigo-800">
           {blockedMessage}
         </div>
       ) : null}
@@ -199,14 +204,14 @@ export default function QuizClient() {
         })()}
       </div>
 
-      <div className="px-4 pb-8 flex items-center justify-between gap-4">
-        <div className="text-black">
+      <div className="pb-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="text-slate-900">
           {submitted ? (
             <div>
               <div className="font-semibold">
                 Score: {submitted.score}/{submitted.totalMarks}
               </div>
-              <div className="text-sm text-gray-700">
+              <div className="text-sm text-slate-700">
                 Correct: {submitted.correctCount}/{submitted.totalQuestions}
               </div>
             </div>
@@ -216,12 +221,12 @@ export default function QuizClient() {
           type="button"
           onClick={handleSubmit}
           disabled={!exam || submitting || Boolean(submitted)}
-          className="px-4 py-2 rounded bg-amber-600 text-white disabled:opacity-60"
+          className="btn-primary"
         >
           {submitted ? "Submitted" : submitting ? "Submitting..." : "Submit Result"}
         </button>
       </div>
+      </div>
     </section>
   )
 }
-

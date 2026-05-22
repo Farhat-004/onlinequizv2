@@ -60,19 +60,19 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-500 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
-        <h1 className="text-3xl font-bold text-center text-gray-900 mb-8">Sign Up</h1>
+    <div className="min-h-screen flex items-center justify-center app-bg py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full glass-card p-8">
+        <h1 className="text-3xl font-bold text-center text-slate-900 mb-8">Sign Up</h1>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded mb-4">
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl mb-4">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5 text-black">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="name" className="label">
               Full Name *
             </label>
             <input
@@ -81,13 +81,13 @@ export default function SignUpPage() {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="input"
               placeholder="John Doe"
             />
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="email" className="label">
               Email *
             </label>
             <input
@@ -96,13 +96,13 @@ export default function SignUpPage() {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="input"
               placeholder="you@example.com"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="password" className="label">
               Password *
             </label>
             <input
@@ -111,13 +111,13 @@ export default function SignUpPage() {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="input"
               placeholder="••••••••"
             />
           </div>
 
           <div>
-            <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="role" className="label">
               Role *
             </label>
             <select
@@ -125,7 +125,7 @@ export default function SignUpPage() {
               name="role"
               value={formData.role}
               onChange={handleChange}
-              className="w-full px-3 py-2 border text-black border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="select"
             >
               <option value="student">Student</option>
               <option value="teacher">Teacher</option>
@@ -134,7 +134,7 @@ export default function SignUpPage() {
           </div>
 
           <div>
-            <label htmlFor="institution" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="institution" className="label">
               Institution (Optional)
             </label>
             <input
@@ -143,7 +143,7 @@ export default function SignUpPage() {
               name="institution"
               value={formData.institution}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="input"
               placeholder="Your institution name"
             />
           </div>
@@ -151,15 +151,15 @@ export default function SignUpPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition duration-200"
+            className="w-full btn-primary"
           >
             {loading ? 'Signing Up...' : 'Sign Up'}
           </button>
         </form>
 
-        <p className="text-center text-gray-600 mt-6">
+        <p className="text-center text-slate-600 mt-6">
           Already have an account?{' '}
-          <a href="/signin" className="text-blue-600 hover:text-blue-700 font-medium">
+          <a href="/signin" className="text-indigo-700 hover:text-indigo-800 font-semibold">
             Log in
           </a>
         </p>

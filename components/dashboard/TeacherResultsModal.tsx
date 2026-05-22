@@ -30,6 +30,7 @@ export default function ResultsModal({
   const [rows, setRows] = useState<Row[]>([]);
   const [error, setError] = useState<string | null>(null);
 
+  /* eslint-disable react-hooks/set-state-in-effect -- existing behavior; keep logic unchanged */
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
@@ -59,6 +60,7 @@ export default function ResultsModal({
       cancelled = true;
     };
   }, [open, examId]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const summary = useMemo(() => {
     if (rows.length === 0) return { avg: 0 };
@@ -71,18 +73,18 @@ export default function ResultsModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative w-[95vw] max-w-3xl rounded-xl bg-white border shadow-lg">
-        <div className="px-5 py-4 border-b flex items-center justify-between">
+      <div className="relative w-[95vw] max-w-3xl glass-card">
+        <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
           <div>
-            <div className="text-sm text-gray-500">Participants</div>
-            <div className="font-semibold text-gray-900">
+            <div className="text-xs font-semibold tracking-wide text-slate-500 uppercase">Participants</div>
+            <div className="font-semibold text-slate-900">
               Results · {rows.length} submissions · Avg {summary.avg}%
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="px-3 py-2 rounded-md border text-sm hover:bg-gray-50"
+            className="btn-outline"
           >
             Close
           </button>
@@ -90,15 +92,17 @@ export default function ResultsModal({
 
         <div className="p-5">
           {loading ? (
-            <div className="text-sm text-gray-600">Loading…</div>
+            <div className="text-sm text-slate-600">Loading…</div>
           ) : error ? (
             <div className="text-sm text-red-600">{error}</div>
           ) : rows.length === 0 ? (
-            <div className="text-sm text-gray-600">No one has submitted yet.</div>
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-sm text-slate-600">
+              No one has submitted yet.
+            </div>
           ) : (
-            <div className="overflow-auto border rounded-lg">
+            <div className="overflow-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
               <table className="min-w-full text-sm">
-                <thead className="bg-gray-50 text-gray-600">
+                <thead className="bg-slate-50 text-slate-600">
                   <tr>
                     <th className="text-left font-medium px-4 py-3">Student</th>
                     <th className="text-left font-medium px-4 py-3">Score</th>
@@ -106,17 +110,19 @@ export default function ResultsModal({
                     <th className="text-left font-medium px-4 py-3">Submitted</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y">
+                <tbody className="divide-y divide-slate-200">
                   {rows.map((r) => (
-                    <tr key={r._id} className="text-gray-900">
+                    <tr key={r._id} className="text-slate-900 hover:bg-slate-50/70 transition">
                       <td className="px-4 py-3">
                         <div className="font-medium">{r.student?.name || "Student"}</div>
-                        <div className="text-xs text-gray-600">{r.student?.email || ""}</div>
+                        <div className="text-xs text-slate-600">{r.student?.email || ""}</div>
                       </td>
                       <td className="px-4 py-3">
                         {r.score}/{r.totalMarks}
                       </td>
-                      <td className="px-4 py-3">{r.percent}%</td>
+                      <td className="px-4 py-3">
+                        <span className="badge text-slate-800">{r.percent}%</span>
+                      </td>
                       <td className="px-4 py-3">{fmtDate(r.submittedAt)}</td>
                     </tr>
                   ))}

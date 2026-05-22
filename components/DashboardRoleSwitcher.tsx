@@ -45,6 +45,7 @@ export default function DashboardRoleSwitcher({ hasBothRoles }: { hasBothRoles: 
               strokeLinecap="round"
               strokeLinejoin="round"
             />
+
             <path
               d="M8 11c1.657 0 3-1.79 3-4S9.657 3 8 3 5 4.79 5 7s1.343 4 3 4Z"
               stroke="currentColor"

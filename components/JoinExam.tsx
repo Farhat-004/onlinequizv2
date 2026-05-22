@@ -70,36 +70,36 @@ export default function JoinExam() {
 
   return (
     <div className="min-h-screen flex items-center justify-center home-bg">
-      <div className="max-w-xl w-full p-8 bg-white rounded shadow">
-        <h1 className="text-2xl font-semibold mb-4 text-amber-700">eExam</h1>
-        <p className="mb-6 text-gray-600">Enter join code to find an exam</p>
+      <div className="max-w-xl w-full p-8 glass-card">
+        <h1 className="text-2xl font-semibold mb-2 text-slate-900">eExam</h1>
+        <p className="mb-6 text-slate-600">Enter join code to find an exam</p>
         <form onSubmit={handleSearch} className="grid gap-3 sm:grid-cols-[auto,1fr]">
-          <label className='text-black'>Join Code:</label>
+          <label className="label mb-0">Join Code</label>
           <input
             value={code}
             onChange={(e) => setCode(e.target.value)}
             type="text"
             name="joinCode"
             required
-            className='text-black border-amber-700 border-2 rounded-sm px-2 active:border-green-400'
+            className="input"
           />
-          <label className='text-black'>Password:</label>
+          <label className="label mb-0">Password</label>
           <input
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             type="password"
             name="password"
             required
-            className='text-black border-amber-700 border-2 rounded-sm px-2 active:border-green-400'
+            className="input"
           />
           <div className="sm:col-span-2">
-            <button type="submit" className="px-4 py-2 bg-amber-600 text-white rounded">
+            <button type="submit" className="btn-primary">
               Search
             </button>
           </div>
         </form>
 
-        {loading && <p className="mt-4 text-sm text-gray-600">Searching...</p>}
+        {loading && <p className="mt-4 text-sm text-slate-600">Searching...</p>}
         {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
 
         {/* Modal */}
@@ -109,12 +109,14 @@ export default function JoinExam() {
             onClick={() => setExam(null)}
           >
             <div
-              className="bg-white rounded-lg p-6 w-full max-w-md"
+              className="w-full max-w-md glass-card p-6"
               onClick={(e) => e.stopPropagation()}
             >
-              <h2 className="text-lg font-semibold mb-2 text-black">{exam.title || 'Exam Details'}</h2>
-              <p className="text-sm text-gray-600 mb-4">Join Code: <strong>{exam.joinCode}</strong></p>
-              <ul className="mb-4 text-sm space-y-1 text-black">
+              <h2 className="text-lg font-semibold mb-2 text-slate-900">{exam.title || 'Exam Details'}</h2>
+              <p className="text-sm text-slate-600 mb-4">
+                Join Code: <span className="font-mono font-semibold text-slate-900">{exam.joinCode}</span>
+              </p>
+              <ul className="mb-4 text-sm space-y-1 text-slate-900">
                 <li><strong>Duration:</strong> {exam.durationMinutes ?? exam.duration ?? 'N/A'} minutes</li>
                 <li><strong>Total Marks:</strong> {exam.totalMarks ?? 'N/A'}</li>
                 <li><strong>Marks per Question:</strong> {exam.marksPerQues ?? 'N/A'}</li>
@@ -133,14 +135,14 @@ export default function JoinExam() {
                 <button
                   type="button"
                   onClick={() => setExam(null)}
-                  className="px-4 py-2 border rounded bg-red-600 text-white"
+                  className="btn-outline"
                 >
                   Close
                 </button>
                 <button
                   type="button"
                   onClick={handleJoin}
-                  className="px-4 py-2 bg-amber-600 text-white rounded"
+                  className="btn-primary"
                   disabled={dateExpired}
                 >
                   {dateExpired ? "Ended" : "Join"}

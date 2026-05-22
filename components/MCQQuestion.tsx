@@ -29,17 +29,17 @@ export default function MCQQuestion({
 }) {
   function getChoiceClass(choiceIndex: number) {
     const isSelected = selectedIndex === choiceIndex
-    if (!result) return isSelected ? 'bg-blue-50 border-blue-300' : 'bg-white'
+    if (!result) return isSelected ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-slate-200'
 
     const isCorrectChoice = choiceIndex === result.correctIndex
-    if (isCorrectChoice) return 'bg-green-50 border-green-300'
-    if (isSelected && !isCorrectChoice) return 'bg-red-50 border-red-300'
-    return 'bg-white'
+    if (isCorrectChoice) return 'bg-emerald-50 border-emerald-200'
+    if (isSelected && !isCorrectChoice) return 'bg-red-50 border-red-200'
+    return 'bg-white border-slate-200'
   }
 
   return (
-    <div className="p-4 border rounded mb-3 bg-white">
-      <div className="mb-2 font-medium text-black">
+    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm mb-4">
+      <div className="mb-3 font-semibold text-slate-900">
         {question?.index}. {question?.text}
       </div>
       <div className="grid gap-2">
@@ -49,7 +49,7 @@ export default function MCQQuestion({
             type="button"
             disabled={disabled}
             onClick={() => onSelect(idx)}
-            className={`text-left p-3 rounded border text-black disabled:opacity-60 ${getChoiceClass(idx)}`}
+            className={`text-left p-3 rounded-2xl border text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:shadow disabled:opacity-60 disabled:hover:translate-y-0 ${getChoiceClass(idx)}`}
           >
             {c?.text}
           </button>

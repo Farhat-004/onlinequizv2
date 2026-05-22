@@ -66,47 +66,71 @@ const handleSignin=async () => {
   }
 }
   return (
-    <div className='text-center flex flex-row items-center justify-center mt-40 w-full  bg-gray-800'>
-        <div className='bg-gray-800 w-1/3 p-8 rounded-lg'>
-          <h1 className='text-2xl font-bold mb-6'>Signin</h1>
-          <form onSubmit={handleSubmit} className='space-y-4'>
+    <div className="min-h-screen app-bg flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md glass-card p-8">
+          <h1 className="text-2xl font-bold mb-2 text-slate-900">Sign in</h1>
+          <p className="text-sm text-slate-600 mb-6">Use your email/password or continue with Google.</p>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="email" className='block text-left mb-2'>Email:</label>
+              <label htmlFor="email" className="label mb-0">Email</label>
               <input 
                 type="email" 
                 id="email" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className='w-full px-3 py-2 border rounded-md'
+                className="input"
               />
             </div>
             <div>
-              <label htmlFor="password" className='block text-left mb-2'>Password:</label>
+              <label htmlFor="password" className="label mb-0">Password</label>
               <input 
                 type="password" 
                 id="password" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className='w-full px-3 py-2 border rounded-md'
+                className="input"
               />
             </div>
-            <button type="submit" className='w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 mt-4'>
+            <button type="submit" disabled={loading} className="w-full btn-primary mt-2">
               Sign In
             </button>
 
           </form>
-          <p className='text-sm text-white-800 mt-4'>
-            Don&apos;t have an account?{' '}
-            <Link href="/signup" className='text-blue-500 hover:text-blue-700'>
+          <div className="mt-5 flex items-center gap-3">
+            <div className="h-px flex-1 bg-slate-200" />
+            <div className="text-xs font-semibold text-slate-500">OR</div>
+            <div className="h-px flex-1 bg-slate-200" />
+          </div>
+
+          <button
+            disabled={loading}
+            onClick={handleSignin}
+            className="w-full btn-outline mt-4 disabled:opacity-60"
+          >
+              <svg viewBox="0 0 24 24" className="size-4" aria-hidden="true">
+                <path
+                  d="M21.35 11.1h-9.18v2.98h5.26c-.23 1.25-1.41 3.67-5.26 3.67-3.16 0-5.73-2.62-5.73-5.85s2.57-5.85 5.73-5.85c1.8 0 3.01.77 3.7 1.44l2.52-2.43C16.79 3.57 14.74 2.5 12.17 2.5 6.97 2.5 2.75 6.8 2.75 11.9s4.22 9.4 9.42 9.4c5.43 0 9.02-3.83 9.02-9.22 0-.62-.07-1.1-.16-1.58Z"
+                  fill="currentColor"
+                />
+              </svg>
+              Continue with Google
+            </button>
+
+          <p className="text-sm text-slate-600 mt-5">
+            Don&apos;t have an account?{" "}
+            <Link href="/signup" className="text-indigo-700 hover:text-indigo-800 font-semibold">
               Sign up
             </Link>
           </p>
-          <button disabled={loading} onClick={handleSignin} className='w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600 mt-4 disabled:opacity-60'>
-              Sign In with Google
-            </button>
-          {error && <p className='text-red-500 mt-4'>{error}</p>}
+
+          {error && (
+            <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {error}
+            </div>
+          )}
         </div>
         
     </div>

@@ -3,13 +3,17 @@ import { useSession } from 'next-auth/react'
 import { useState, useEffect } from 'react'
 
 export default function NewExam() {
+  type Choice = { text: string; isCorrect?: boolean }
+  type Question = { text: string; serial: number; choices: Choice[] }
+
  const [numOfQues, setNumOfQues] = useState(5)
   const [config,setConfig] = useState({ title: '', durationMinutes: 10, startTime: '', endTime: '' ,totalMarks: 100,marksPerQues: 20,password: ''})
-  const [questions, setQuestions] = useState(() => Array.from({ length: numOfQues }).map((_, i) => ({ text: `Question ${i + 1}`, serial: i + 1, choices: [{ text: 'Option A', isCorrect: i === 0 }, { text: 'Option B' }, { text: 'Option C' }, { text: 'Option D' }] })))
+  const [questions, setQuestions] = useState<Question[]>(() => Array.from({ length: numOfQues }).map((_, i) => ({ text: `Question ${i + 1}`, serial: i + 1, choices: [{ text: 'Option A', isCorrect: i === 0 }, { text: 'Option B' }, { text: 'Option C' }, { text: 'Option D' }] })))
   const session=useSession();
   
   const userId = (session?.data as unknown as { userId?: string | null } | null)?.userId ?? null
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- keep existing behavior; only UI changes intended
     setQuestions(prev => {
       const prevLen = prev.length
       if (numOfQues === prevLen) return prev
@@ -27,7 +31,7 @@ export default function NewExam() {
   }, [numOfQues])
   const [joinCode, setJoinCode] = useState<string | null>(null)
 
-  async function handleCreate(e: any) {
+  async function handleCreate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     
     const quizData={
@@ -47,62 +51,74 @@ export default function NewExam() {
   }
 
   return (
-    <div className="min-h-screen max-h-[90vh] bg-gray-500">
-      <header className="bg-gray-800 shadow p-4">Create Quiz</header>
-      <main className="p-6 bg-amber-300">
-        <div className="max-w-4xl mx-auto bg-gray-700 p-6 rounded shadow">
-          <h2 className="text-lg font-semibold mb-4">Quiz Builder</h2>
+    <div className="min-h-screen app-bg">
+      <header className="border-b border-slate-200 bg-white/70 backdrop-blur">
+        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div>
+            <div className="text-xs font-semibold tracking-wide text-slate-500 uppercase">Teacher</div>
+            <div className="text-xl font-bold text-slate-900">Create Quiz</div>
+          </div>
+          {joinCode ? (
+            <div className="badge">
+              Join Code: <span className="font-mono text-slate-900">{joinCode}</span>
+            </div>
+          ) : null}
+        </div>
+      </header>
+      <main className="p-6">
+        <div className="max-w-4xl mx-auto glass-card p-6">
+          <h2 className="text-lg font-semibold mb-4 text-slate-900">Quiz Builder</h2>
           <form onSubmit={handleCreate} className="space-y-1">
             {/* custom config */}
            <span className='gap-2 flex-col md:flex-row flex'>
-             <label className="text-sm font-medium mt-1 text-gray-300 w-40">Quiz Tittle :</label>
-                <input value={config.title} type='text' onChange={e => setConfig({...config, title: e.target.value})} className="flex-1 border p-2 rounded" required={true}/>
+             <label className="text-sm font-medium mt-1 text-slate-700 w-40">Quiz Tittle :</label>
+                <input value={config.title} type='text' onChange={e => setConfig({...config, title: e.target.value})} className="input flex-1" required={true}/>
                
-             <label className="text-sm font-medium mt-1 text-gray-300 w-40">Password :</label>
-                <input value={config.password} type='text' onChange={e => setConfig({...config, password: e.target.value})} className="flex-1 border p-2 rounded" required={true}/>
+             <label className="text-sm font-medium mt-1 text-slate-700 w-40">Password :</label>
+                <input value={config.password} type='text' onChange={e => setConfig({...config, password: e.target.value})} className="input flex-1" required={true}/>
                
            </span>
                 
                 <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-gray-300 w-40">Marks Per Question </label>
+                <label className="text-sm font-medium text-slate-700 w-40">Marks Per Question </label>
                 <input value={config.marksPerQues} type='number' onChange={e => {
                   const v = e.target.value
                   const n = v === '' ? 0 : parseInt(v, 10) || 0
                   setConfig({...config, marksPerQues: n})
-                }} className="flex-1 border p-2 rounded" />
+                }} className="input flex-1" />
                 </div>
                 <div className='flex flex-wrap gap-4'>
                 <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-gray-300 w-40">Duration (Minutes)</label>
-                <input value={config.durationMinutes} type='number' onChange={e => setConfig({...config, durationMinutes: parseInt(e.target.value)})} className="flex-1 border p-2 rounded" required={true}/>
+                <label className="text-sm font-medium text-slate-700 w-40">Duration (Minutes)</label>
+                <input value={config.durationMinutes} type='number' onChange={e => setConfig({...config, durationMinutes: parseInt(e.target.value)})} className="input flex-1" required={true}/>
                 </div>
                 <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-gray-300 w-40">Marks Per Question </label>
-                <input value={config.marksPerQues} type='number' onChange={e => setConfig({...config, marksPerQues: parseInt(e.target.value)})} className="flex-1 border p-2 rounded" required={true}/>
+                <label className="text-sm font-medium text-slate-700 w-40">Marks Per Question </label>
+                <input value={config.marksPerQues} type='number' onChange={e => setConfig({...config, marksPerQues: parseInt(e.target.value)})} className="input flex-1" required={true}/>
                 </div>
                
                 <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-gray-300 w-40">Start Time</label>
-                <input value={config.startTime} type='date' onChange={e => setConfig({...config, startTime: e.target.value})} className="flex-1 border p-2 rounded" required={true}/>
+                <label className="text-sm font-medium text-slate-700 w-40">Start Time</label>
+                <input value={config.startTime} type='date' onChange={e => setConfig({...config, startTime: e.target.value})} className="input flex-1" required={true}/>
                 </div>
                 <div className="flex items-center gap-2 ml-16">
-                <label className="text-sm font-medium text-gray-300 w-40">End Time</label>
-                <input value={config.endTime} type='date' onChange={e => setConfig({...config, endTime: e.target.value})} className="flex-1 border p-2  rounded" required={true}/>
+                <label className="text-sm font-medium text-slate-700 w-40">End Time</label>
+                <input value={config.endTime} type='date' onChange={e => setConfig({...config, endTime: e.target.value})} className="input flex-1" required={true}/>
                 </div>
                 </div>
                 <div className="space-y-2">
                 {/* questions */}
               {questions.map((q, qi) => (
-                <div key={qi} className="p-3 border rounded  bg-gray-600">
+                <div key={qi} className="p-4 border border-slate-200 rounded-3xl bg-white shadow-sm">
                     <div className="flex  flex-row items-center">
-                <p className='text-white'>{ q.serial}.</p>
-                  <input placeholder={q.text} value={q.text} onChange={e => { const copy = [...questions]; copy[qi].text = e.target.value; setQuestions(copy) }} className="w-full m-2 border p-2 rounded" required={true}/>
+                <p className="text-slate-600 font-semibold">{ q.serial}.</p>
+                  <input placeholder={q.text} value={q.text} onChange={e => { const copy = [...questions]; copy[qi].text = e.target.value; setQuestions(copy) }} className="input w-full m-2" required={true}/>
                   </div>
                   <div className="grid grid-cols-1 gap-2">
-                    {q.choices.map((c: any, ci: number) => (
+                    {q.choices.map((c, ci: number) => (
                       <div key={ci} className="flex gap-2 items-center">
-                        <input type="radio" name={`correct-${qi}`} checked={!!c.isCorrect} onChange={() => { const copy = [...questions]; copy[qi].choices.forEach((cc: any) => cc.isCorrect = false); copy[qi].choices[ci].isCorrect = true; setQuestions(copy) }} required={true}/>
-                        <input placeholder={c.text} value={c.text} onChange={e => { const copy = [...questions]; copy[qi].choices[ci].text = e.target.value; setQuestions(copy) }} className="flex-1 border p-1 rounded" required={true}/>
+                        <input type="radio" name={`correct-${qi}`} checked={!!c.isCorrect} onChange={() => { const copy = [...questions]; copy[qi].choices.forEach((cc) => cc.isCorrect = false); copy[qi].choices[ci].isCorrect = true; setQuestions(copy) }} required={true}/>
+                        <input placeholder={c.text} value={c.text} onChange={e => { const copy = [...questions]; copy[qi].choices[ci].text = e.target.value; setQuestions(copy) }} className="input flex-1 py-2" required={true}/>
                       </div>
                     ))}
                   </div>
@@ -110,11 +126,10 @@ export default function NewExam() {
               ))}
             </div>
             <div className="flex gap-2">
-              <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded">Create</button>
-              <button onClick={()=>{setNumOfQues(prev=>prev+1)}} className="px-4 py-2 bg-yellow-600 text-white rounded">Add +1</button>
-              <button onClick={()=>{setNumOfQues(prev=>prev+5)}} className="px-4 py-2 bg-yellow-600 text-white rounded">Add +5</button>
-              <button onClick={()=>{setNumOfQues(prev=>prev-1)}} className="px-4 py-2 bg-red-600 text-white rounded">Remove -1</button>
-              {joinCode && <div className="p-2 bg-blue-500 rounded">Join Code: <strong>{joinCode}</strong></div>}
+              <button type="submit" className="btn-primary">Create</button>
+              <button onClick={()=>{setNumOfQues(prev=>prev+1)}} className="btn-outline">Add +1</button>
+              <button onClick={()=>{setNumOfQues(prev=>prev+5)}} className="btn-outline">Add +5</button>
+              <button onClick={()=>{setNumOfQues(prev=>prev-1)}} className="btn-danger">Remove -1</button>
             </div>
           </form>
         </div>
