@@ -33,52 +33,132 @@ export default function StudentDashboard({
   pastExams: PastExam[];
 }) {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
       <div className="max-w-6xl mx-auto p-6">
         <DashboardRoleSwitcher hasBothRoles={hasBothRoles} />
         <div className="grid gap-6 md:grid-cols-3">
-          <div className="md:col-span-2 bg-white border rounded-xl p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-gray-600">Dashboard</div>
-                <h1 className="text-2xl font-bold text-gray-900">Welcome, {user.name}</h1>
-                <div className="text-sm text-gray-600">{user.email}</div>
+          <div className="md:col-span-2 overflow-hidden rounded-3xl border border-slate-200 bg-white/70 backdrop-blur shadow-sm">
+            <div className="p-6 sm:p-8">
+              <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-4 min-w-0">
+                  <div className="relative">
+                    <div className="grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-indigo-600 to-fuchsia-600 text-white shadow-md">
+                      {user.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          alt={user.name}
+                          src={user.image}
+                          className="size-12 rounded-2xl object-cover"
+                        />
+                      ) : (
+                        <span className="text-base font-semibold">
+                          {(user.name || "S").trim().slice(0, 1).toUpperCase()}
+                        </span>
+                      )}
+                    </div>
+                    <div className="absolute -bottom-2 -right-2 rounded-xl border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm">
+                      Student
+                    </div>
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
+                      Dashboard
+                    </div>
+                    <h1 className="mt-1 text-2xl font-bold text-slate-900 truncate">
+                      Welcome, {user.name}
+                    </h1>
+                    <div className="mt-1 text-sm text-slate-600 truncate">{user.email}</div>
+                  </div>
+                </div>
+                <div className="shrink-0">
+                  <PerformanceCircle value={averagePercent} label="Performance" />
+                </div>
               </div>
-              <PerformanceCircle value={averagePercent} label="Performance" />
+
+              <div className="mt-6 flex flex-wrap items-center gap-2 text-sm text-slate-600">
+                <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 shadow-sm">
+                  <span className="size-2 rounded-full bg-indigo-500" />
+                  Exams taken:{" "}
+                  <span className="font-semibold text-slate-900">{pastExams.length}</span>
+                </span>
+                <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 shadow-sm">
+                  <span className="size-2 rounded-full bg-fuchsia-500" />
+                  Average:{" "}
+                  <span className="font-semibold text-slate-900">{averagePercent}%</span>
+                </span>
+              </div>
             </div>
           </div>
 
-          <div className="bg-white border rounded-xl p-5">
-            <div className="text-sm text-gray-600">User details</div>
-            <div className="mt-2 space-y-2">
-              <div className="text-sm">
-                <span className="text-gray-500">Role:</span>{" "}
-                <span className="font-medium text-gray-900">{user.role}</span>
+          <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white/70 backdrop-blur shadow-sm">
+            <div className="p-6">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
+                    Profile
+                  </div>
+                  <div className="mt-1 text-lg font-semibold text-slate-900 truncate">
+                    User details
+                  </div>
+                </div>
+                <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-sm">
+                  {user.role}
+                </span>
               </div>
-              <div className="text-sm">
-                <span className="text-gray-500">Exams taken:</span>{" "}
-                <span className="font-medium text-gray-900">{pastExams.length}</span>
-              </div>
-              <div className="text-sm">
-                <span className="text-gray-500">Average:</span>{" "}
-                <span className="font-medium text-gray-900">{averagePercent}%</span>
+
+              <div className="mt-5 space-y-3 text-sm">
+                <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+                  <span className="text-slate-600">Role</span>
+                  <span className="font-semibold text-slate-900">{user.role}</span>
+                </div>
+                <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+                  <span className="text-slate-600">Exams taken</span>
+                  <span className="font-semibold text-slate-900">{pastExams.length}</span>
+                </div>
+                <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+                  <span className="text-slate-600">Average</span>
+                  <span className="font-semibold text-slate-900">{averagePercent}%</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="mt-6 bg-white border rounded-xl">
-          <div className="px-5 py-4 border-b flex items-center justify-between">
-            <h2 className="font-semibold text-gray-900">Past exams</h2>
-            <div className="text-sm text-gray-600">{pastExams.length} results</div>
+        <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-white/70 backdrop-blur shadow-sm">
+          <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="grid size-8 place-items-center rounded-xl bg-slate-900 text-white shadow-sm">
+                <svg viewBox="0 0 24 24" className="size-4" fill="none" aria-hidden="true">
+                  <path
+                    d="M4 7a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V7Z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  />
+                  <path
+                    d="M8 9h8M8 13h8M8 17h5"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </span>
+              <h2 className="font-semibold text-slate-900">Past exams</h2>
+            </div>
+            <div className="text-sm text-slate-600">
+              <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2.5 py-1 shadow-sm">
+                {pastExams.length} results
+              </span>
+            </div>
           </div>
           <div className="p-5">
             {pastExams.length === 0 ? (
-              <div className="text-sm text-gray-600">No results yet.</div>
+              <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-sm text-slate-600">
+                No results yet.
+              </div>
             ) : (
-              <div className="overflow-auto border rounded-lg">
+              <div className="overflow-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
                 <table className="min-w-full text-sm">
-                  <thead className="bg-gray-50 text-gray-600">
+                  <thead className="bg-slate-50 text-slate-600">
                     <tr>
                       <th className="text-left font-medium px-4 py-3">Exam</th>
                       <th className="text-left font-medium px-4 py-3">Score</th>
@@ -86,17 +166,24 @@ export default function StudentDashboard({
                       <th className="text-left font-medium px-4 py-3">Submitted</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y">
+                  <tbody className="divide-y divide-slate-200">
                     {pastExams.map((r) => (
-                      <tr key={r._id} className="text-gray-900">
+                      <tr
+                        key={r._id}
+                        className="text-slate-900 hover:bg-slate-50/70 transition"
+                      >
                         <td className="px-4 py-3">
                           <div className="font-medium">{r.title}</div>
-                          <div className="text-xs text-gray-600">Exam ID: {r.examId}</div>
+                          <div className="text-xs text-slate-600">Exam ID: {r.examId}</div>
                         </td>
                         <td className="px-4 py-3">
                           {r.score}/{r.totalMarks}
                         </td>
-                        <td className="px-4 py-3">{r.percent}%</td>
+                        <td className="px-4 py-3">
+                          <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-800">
+                            {r.percent}%
+                          </span>
+                        </td>
                         <td className="px-4 py-3">{fmtDate(r.submittedAt)}</td>
                       </tr>
                     ))}

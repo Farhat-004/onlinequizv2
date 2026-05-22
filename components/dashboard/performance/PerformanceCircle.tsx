@@ -24,7 +24,7 @@ export default function PerformanceCircle({
             cy={size / 2}
             r={r}
             strokeWidth={stroke}
-            stroke="#e5e7eb"
+            stroke="#e2e8f0"
             fill="none"
           />
           <circle
@@ -32,7 +32,7 @@ export default function PerformanceCircle({
             cy={size / 2}
             r={r}
             strokeWidth={stroke}
-            stroke="#111827"
+            stroke="#4f46e5"
             fill="none"
             strokeLinecap="round"
             strokeDasharray={`${dash} ${c - dash}`}
@@ -40,10 +40,15 @@ export default function PerformanceCircle({
           />
         </svg>
         <div className="absolute inset-0 grid place-items-center">
-          <div className="text-lg font-semibold text-gray-900">{v}%</div>
+          <div className="text-lg font-bold text-slate-900">{v}%</div>
         </div>
       </div>
-      {label ? <div className="text-sm text-gray-700">{label}</div> : null}
+      {label ? (
+        <div className="text-sm font-semibold text-slate-700">
+          {label}
+          <div className="text-xs font-normal text-slate-500">Average score</div>
+        </div>
+      ) : null}
     </div>
   );
 }

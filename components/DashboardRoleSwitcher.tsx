@@ -34,21 +34,53 @@ export default function DashboardRoleSwitcher({ hasBothRoles }: { hasBothRoles: 
   }
 
   return (
-    <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-      <div className="text-sm text-amber-950">
-        <span className="font-medium">You have teacher and student access.</span>{" "}
-        <span className="text-amber-900/90">Choose which dashboard to show.</span>
+    <div className="mb-6 overflow-hidden rounded-2xl border border-slate-200 bg-white/70 backdrop-blur px-4 py-3 shadow-sm flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-start gap-3 text-sm text-slate-800">
+        <div className="mt-0.5 grid size-8 place-items-center rounded-xl bg-gradient-to-br from-indigo-600 to-fuchsia-600 text-white shadow-sm">
+          <svg viewBox="0 0 24 24" className="size-4" fill="none" aria-hidden="true">
+            <path
+              d="M16 11c1.657 0 3-1.79 3-4s-1.343-4-3-4-3 1.79-3 4 1.343 4 3 4Z"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M8 11c1.657 0 3-1.79 3-4S9.657 3 8 3 5 4.79 5 7s1.343 4 3 4Z"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M2 21c0-3.314 2.686-6 6-6"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+            <path
+              d="M22 21c0-3.314-2.686-6-6-6"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </svg>
+        </div>
+        <div>
+          <div className="font-semibold text-slate-900">You have teacher and student access</div>
+          <div className="text-slate-600">Choose which dashboard to show.</div>
+        </div>
       </div>
       <div className="flex gap-2 shrink-0">
         <button
           type="button"
           disabled={pending !== null}
           onClick={() => setRole("teacher")}
-          className={`px-4 py-2 rounded-lg text-sm font-medium border transition ${
+          className={`px-4 py-2 rounded-xl text-sm font-semibold border transition shadow-sm ${
             active === "teacher"
-              ? "bg-gray-900 text-white border-gray-900"
-              : "bg-white text-gray-800 border-gray-300 hover:bg-gray-50"
-          } disabled:opacity-60`}
+              ? "bg-gradient-to-r from-indigo-600 to-fuchsia-600 text-white border-transparent"
+              : "bg-white text-slate-800 border-slate-200 hover:bg-slate-50"
+          } disabled:opacity-60 disabled:shadow-none`}
         >
           {pending === "teacher" ? "…" : "Teacher"}
         </button>
@@ -56,11 +88,11 @@ export default function DashboardRoleSwitcher({ hasBothRoles }: { hasBothRoles: 
           type="button"
           disabled={pending !== null}
           onClick={() => setRole("student")}
-          className={`px-4 py-2 rounded-lg text-sm font-medium border transition ${
+          className={`px-4 py-2 rounded-xl text-sm font-semibold border transition shadow-sm ${
             active === "student"
-              ? "bg-gray-900 text-white border-gray-900"
-              : "bg-white text-gray-800 border-gray-300 hover:bg-gray-50"
-          } disabled:opacity-60`}
+              ? "bg-gradient-to-r from-indigo-600 to-fuchsia-600 text-white border-transparent"
+              : "bg-white text-slate-800 border-slate-200 hover:bg-slate-50"
+          } disabled:opacity-60 disabled:shadow-none`}
         >
           {pending === "student" ? "…" : "Student"}
         </button>
