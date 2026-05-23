@@ -127,6 +127,7 @@ export default function SignUpPage() {
               onChange={handleChange}
               className="select"
             >
+              <option value="">Select a role</option>
               <option value="student">Student</option>
               <option value="teacher">Teacher</option>
               <option value="both">Teacher and student</option>

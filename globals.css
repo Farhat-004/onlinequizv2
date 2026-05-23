@@ -9,7 +9,7 @@ html, body, #__next {
 /* Home page background using public/bgweb.jpg */
 .home-bg {
   background-image: url('/bgweb.jpg');
-  background-repeat: no-repeat;
+  background-repeat: inherit;
   background-size: cover;
   background-position: center;
 }

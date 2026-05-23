@@ -37,8 +37,8 @@ body {
 
   .glass-card {
     background: var(--card);
-    border: 1px solid var(--card-border);
-    @apply backdrop-blur shadow-sm rounded-3xl;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    @apply backdrop-blur shadow-sm rounded-3xl bg-white/70 border-slate-200;
   }
 
   .card {
