@@ -46,7 +46,12 @@ export default function SignUpPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.message || 'Sign up failed');
+        console.log(data.message.split(" ")[0])
+        if(data.message.split(" ")[0]=='E11000') {
+          setError('Email already in use');
+          return;
+        }
+        setError( 'Sign up failed');
         return;
       }
 
@@ -60,12 +65,12 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center app-bg py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center app-bg py-12 px-4 sm:px-6 lg:px-8 home-bg">
       <div className="max-w-md w-full glass-card p-8">
         <h1 className="text-3xl font-bold text-center text-slate-900 mb-8">Sign Up</h1>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl mb-4">
+          <div className="bg-red-50 border border-red-200 text-center text-red-700 px-4 py-3 rounded-2xl mb-4">
             {error}
           </div>
         )}

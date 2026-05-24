@@ -168,7 +168,7 @@ export default function QuizClient() {
   }
 
   return (
-    <section className="min-h-screen app-bg">
+    <section className="min-h-screen app-bg ">
       <div className="max-w-4xl mx-auto px-4 pt-6">
         <div className="glass-card px-5 py-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">

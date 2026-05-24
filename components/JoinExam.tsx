@@ -105,11 +105,11 @@ export default function JoinExam() {
         {/* Modal */}
         {exam && (
           <div
-            className="fixed inset-0 flex items-center justify-center bg-black/40"
+            className="fixed inset-0 flex items-center w-full justify-center bg-black/40 "
             onClick={() => setExam(null)}
           >
             <div
-              className="w-full max-w-md glass-card p-6"
+              className="w-[50vw] max-w-md glass-card p-6 bg-image1"
               onClick={(e) => e.stopPropagation()}
             >
               <h2 className="text-lg font-semibold mb-2 text-slate-900">{exam.title || 'Exam Details'}</h2>
@@ -139,6 +139,7 @@ export default function JoinExam() {
                 >
                   Close
                 </button>
+               {!dateExpired && (
                 <button
                   type="button"
                   onClick={handleJoin}
@@ -146,7 +147,7 @@ export default function JoinExam() {
                   disabled={dateExpired}
                 >
                   {dateExpired ? "Ended" : "Join"}
-                </button>
+                </button>)}
               </div>
             </div>
           </div>

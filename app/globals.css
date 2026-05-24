@@ -24,7 +24,13 @@ body {
 
 /* Home page background using public/bgweb.jpg */
 .home-bg {
-  background-image: url('/bgweb.jpg');
+  background-image: url('/bgweb1.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+.bg-image1 {
+  background-image: url('/bgweb2.jpg');
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
@@ -33,6 +39,10 @@ body {
 @layer components {
   .app-bg {
     @apply bg-gradient-to-br from-slate-50 via-white to-indigo-50;
+    background-image: url('/bgweb2.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
   }
 
   .glass-card {

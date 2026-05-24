@@ -40,7 +40,7 @@ export default function Login() {
       router.push('/');
     } catch (err) {
       setError('An error occurred. Please try again.');
-      console.error(err);
+      console.log(err);
     } finally {
       setLoading(false);
     }
@@ -66,10 +66,9 @@ const handleSignin=async () => {
   }
 }
   return (
-    <div className="min-h-screen app-bg flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen app-bg flex items-center justify-center px-4 py-12 home-bg">
         <div className="w-full max-w-md glass-card p-8">
-          <h1 className="text-2xl font-bold mb-2 text-slate-900">Sign in</h1>
-          <p className="text-sm text-slate-600 mb-6">Use your email/password or continue with Google.</p>
+          <h1 className="text-2xl font-bold mb-2 text-slate-900 text-center">Sign in</h1>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>

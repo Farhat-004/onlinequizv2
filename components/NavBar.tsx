@@ -18,9 +18,8 @@ export default function NavBar() {
   const canTeach = roles.includes("teacher");
 
   const [mobileOpen, setMobileOpen] = useState(false);
-  console.log("navbar user", user)
   return (
-    <nav className="w-full sticky top-0 z-40 border-b border-slate-200 bg-white/70 backdrop-blur">
+    <nav className="w-full sticky top-0 z-40 border-b border-slate-200 bg-white/70 backdrop-blur bg-image1">
       <div className="mx-auto max-w-6xl px-4 py-3 flex justify-between items-center relative">
         <Link href={"/"} className="flex items-center gap-2 font-bold text-slate-900">
           <span className="grid size-9 place-items-center rounded-2xl bg-gradient-to-br from-indigo-600 to-fuchsia-600 text-white shadow-sm">

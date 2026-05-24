@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function HowItWorksPage() {
   return (
-    <div className="min-h-screen app-bg py-12 px-4">
+    <div className="min-h-screen app-bg py-4 px-4">
       <div className="max-w-2xl mx-auto glass-card p-8">
         <h1 className="text-2xl font-bold text-slate-900 mb-2">How eExam works</h1>
         <p className="text-slate-600 text-sm mb-8">
