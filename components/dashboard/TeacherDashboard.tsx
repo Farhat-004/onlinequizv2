@@ -40,10 +40,10 @@ export default function TeacherDashboard({
   }, [upcoming, ongoing, past]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
-      <div className="max-w-6xl mx-auto p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 bg-image1 via-white to-indigo-50">
+      <div className="max-w-6xl mx-auto p-6 app-bg">
         <DashboardRoleSwitcher hasBothRoles={hasBothRoles} />
-        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white/70 backdrop-blur shadow-sm">
+        <div className="overflow-hidden rounded-3xl border border-slate-200 app-bg bg-white/70 backdrop-blur shadow-sm">
           <div className="p-6 sm:p-8">
             <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
               <div className="flex items-center gap-4 min-w-0">
@@ -62,7 +62,7 @@ export default function TeacherDashboard({
                       </span>
                     )}
                   </div>
-                  <div className="absolute -bottom-2 -right-2 rounded-xl border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm">
+                  <div className="absolute -bottom-2 -right-2 rounded-xl border border-slate-200 bg-white/30 backdrop-blur-md px-2 py-1 text-[11px] font-semibold text-slate-700 shadow-sm">
                     Teacher
                   </div>
                 </div>
@@ -79,8 +79,8 @@ export default function TeacherDashboard({
               </div>
 
               <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                  <div className="flex items-center gap-2 text-xs font-medium text-slate-600">
+                <div className="rounded-2xl border border-slate-200 bg-white/40 backdrop-blur-md p-4 shadow-sm">
+                  <div className="flex items-center gap-2 text-xs font-medium  text-slate-600">
                     <span className="grid size-7 place-items-center rounded-xl bg-indigo-50 text-indigo-700">
                       <svg viewBox="0 0 24 24" className="size-4" fill="none" aria-hidden="true">
                         <path
@@ -100,7 +100,7 @@ export default function TeacherDashboard({
                   </div>
                   <div className="mt-2 text-2xl font-bold text-slate-900">{stats.total}</div>
                 </div>
-                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div className="rounded-2xl border border-slate-200 bg-white/40 backdrop-blur-md p-4 shadow-sm">
                   <div className="flex items-center gap-2 text-xs font-medium text-slate-600">
                     <span className="grid size-7 place-items-center rounded-xl bg-fuchsia-50 text-fuchsia-700">
                       <svg viewBox="0 0 24 24" className="size-4" fill="none" aria-hidden="true">
@@ -142,15 +142,15 @@ export default function TeacherDashboard({
             </div>
 
             <div className="mt-6 flex flex-wrap items-center gap-2 text-sm text-slate-600">
-              <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 shadow-sm">
+              <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/30 backdrop-blur-md px-3 py-1.5 shadow-sm">
                 <span className="size-2 rounded-full bg-emerald-500" />
                 Ongoing: <span className="font-semibold text-slate-900">{ongoing.length}</span>
               </span>
-              <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 shadow-sm">
+              <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/30 backdrop-blur-md px-3 py-1.5 shadow-sm">
                 <span className="size-2 rounded-full bg-indigo-500" />
                 Upcoming: <span className="font-semibold text-slate-900">{upcoming.length}</span>
               </span>
-              <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 shadow-sm">
+              <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/30 backdrop-blur-md px-3 py-1.5 shadow-sm">
                 <span className="size-2 rounded-full bg-slate-400" />
                 Past: <span className="font-semibold text-slate-900">{past.length}</span>
               </span>
@@ -158,7 +158,7 @@ export default function TeacherDashboard({
           </div>
         </div>
 
-        <div className="mt-6 grid gap-6">
+        <div className="mt-6 grid gap-6 ">
           <ExamSection title="Ongoing (today)" empty="No ongoing exams right now." exams={ongoing} />
           <ExamSection title="Upcoming" empty="No upcoming exams." exams={upcoming} />
           <ExamSection title="Past exams" empty="No past exams yet." exams={past} />

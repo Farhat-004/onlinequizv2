@@ -33,11 +33,11 @@ export default function StudentDashboard({
   pastExams: PastExam[];
 }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br bg-image1 from-slate-50 via-white to-indigo-50">
       <div className="max-w-6xl mx-auto p-6">
         <DashboardRoleSwitcher hasBothRoles={hasBothRoles} />
         <div className="grid gap-6 md:grid-cols-3">
-          <div className="md:col-span-2 overflow-hidden rounded-3xl border border-slate-200 bg-white/70 backdrop-blur shadow-sm">
+          <div className="md:col-span-2 overflow-hidden rounded-3xl border border-slate-200  backdrop-blur-md bg-white/40 shadow-sm">
             <div className="p-6 sm:p-8">
               <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-4 min-w-0">
@@ -90,7 +90,7 @@ export default function StudentDashboard({
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white/70 backdrop-blur shadow-sm">
+          <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white/40 backdrop-blur shadow-sm">
             <div className="p-6">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
@@ -124,7 +124,7 @@ export default function StudentDashboard({
           </div>
         </div>
 
-        <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-white/70 backdrop-blur shadow-sm">
+        <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-white/40 backdrop-blur shadow-sm">
           <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="grid size-8 place-items-center rounded-xl bg-slate-900 text-white shadow-sm">

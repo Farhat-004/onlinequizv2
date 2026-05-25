@@ -7,6 +7,7 @@ import ExamModel from "@/models/ExamModel";
 import ResultModel from "@/models/ResultModel";
 import TeacherDashboard from "@/components/dashboard/TeacherDashboard";
 import StudentDashboard from "@/components/dashboard/StudentDashboard";
+import type { TeacherExam } from "@/components/dashboard/TeacherDashboard";
 
 function asString(v: unknown): string | null {
   return typeof v === "string" && v.length > 0 ? v : null;
@@ -21,6 +22,29 @@ function getRoleFromSession(session: unknown): "teacher" | "student" {
 function getHasBothRoles(session: unknown): boolean {
   const s = session as Record<string, unknown> | null;
   return Boolean(s?.hasBothRoles);
+}
+
+function iso(v: unknown): string {
+  if (!v) return "";
+  const d = v instanceof Date ? v : new Date(String(v));
+  return Number.isFinite(d.getTime()) ? d.toISOString() : "";
+}
+
+function asTeacherExamDto(e: Record<string, unknown>, participants: number): TeacherExam {
+  return {
+    _id: String(e["_id"]),
+    title: String(e["title"] ?? ""),
+    joinCode: String(e["joinCode"] ?? ""),
+    totalMarks:
+      typeof e["totalMarks"] === "number" ? e["totalMarks"] : Number(e["totalMarks"]) || 0,
+    durationMinutes:
+      typeof e["durationMinutes"] === "number"
+        ? e["durationMinutes"]
+        : Number(e["durationMinutes"]) || 0,
+    startTime: iso(e["startTime"]),
+    endTime: iso(e["endTime"]),
+    participants: Number(participants) || 0,
+  };
 }
 
 export default async function DashboardPage() {
@@ -47,10 +71,11 @@ export default async function DashboardPage() {
       counts.map((c) => [String(c._id), Number(c.participants) || 0]),
     );
 
-    const enriched = exams.map((e) => ({
-      ...e,
-      participants: countMap.get(String(e._id)) ?? 0,
-    }));
+    // Convert Mongo ObjectId / BSON values into plain serializable props for Client Components.
+    const enriched: TeacherExam[] = exams.map((e) => {
+      const id = String((e as { _id?: unknown })?._id);
+      return asTeacherExamDto(e as unknown as Record<string, unknown>, countMap.get(id) ?? 0);
+    });
 
     const upcoming = enriched.filter((e) => new Date(e.startTime) > now);
     const ongoing = enriched.filter(

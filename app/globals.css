@@ -35,6 +35,12 @@ body {
   background-size: cover;
   background-position: center;
 }
+.yaxisbg {
+  background-image: url('/yaxisbg.jpg');
+  background-repeat: repeat;
+  background-size: cover;
+  background-position: center;
+}
 
 @layer components {
   .app-bg {

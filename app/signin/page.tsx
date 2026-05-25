@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
-import { signIn, signOut } from 'next-auth/react'
+import { getSession, signIn, signOut } from 'next-auth/react'
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -21,26 +21,30 @@ export default function Login() {
       return;
     }
 
-    try {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+	    try {
+	      const result = await signIn("credentials", {
+	        email,
+	        password,
+	        redirectTo: "/",
+	        redirect: false,
+	      });
 
-      const data = await response.json();
+	      if (!result || result.error) {
+	        setError(result?.error || "Invalid email or password");
+	        return;
+	      }
 
-      if (!response.ok) {
-        setError(data.message || 'login failed');
-        return;
-      }
+	      const session = await getSession();
+	      if (!session?.user) {
+	        setError("Login succeeded but session was not created. Please refresh and try again.");
+	        return;
+	      }
 
-      router.push('/');
-    } catch (err) {
-      setError('An error occurred. Please try again.');
-      console.log(err);
+	      router.replace(result?.url ?? "/");
+	      router.refresh();
+	    } catch (err) {
+	      setError('An error occurred. Please try again.');
+	      console.log(err);
     } finally {
       setLoading(false);
     }
@@ -136,6 +140,3 @@ const handleSignin=async () => {
     
   )
 }
-
-
-

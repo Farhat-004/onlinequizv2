@@ -29,7 +29,7 @@ export default function MCQQuestion({
 }) {
   function getChoiceClass(choiceIndex: number) {
     const isSelected = selectedIndex === choiceIndex
-    if (!result) return isSelected ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-slate-200'
+    if (!result) return isSelected ? 'bg-green-500 border-green-200' : 'bg-white border-slate-200'
 
     const isCorrectChoice = choiceIndex === result.correctIndex
     if (isCorrectChoice) return 'bg-emerald-50 border-emerald-200'

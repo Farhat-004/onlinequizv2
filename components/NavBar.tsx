@@ -69,9 +69,6 @@ export default function NavBar() {
                   Create Quiz
                 </Link>
               ) : null}
-              <Link href={"/quiz"} className="text-sm font-medium text-slate-600 hover:text-slate-900">
-                Exam
-              </Link>
               <NavRoleSwitcher />
               <div className="flex items-center gap-2 pl-3 border-l border-slate-200">
                 {user.image ? (

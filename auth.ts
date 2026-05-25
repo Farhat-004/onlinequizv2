@@ -1,8 +1,11 @@
 import NextAuth from "next-auth"
 import Google from "next-auth/providers/google"
+import Credentials from "next-auth/providers/credentials"
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
 import client from "@/lib/db"
 import { getUserRoleStateFromDb } from "@/lib/userRoles"
+import { ObjectId } from "mongodb";
+import { hashPassword, verifyPassword } from "@/lib/password";
 
 function getIdFromUnknownUser(user: unknown): string | null {
     if (!user || typeof user !== "object") return null;
@@ -64,13 +67,52 @@ async function refreshAccessToken(token: TokenShape) {
 export const { handlers, auth, signIn, signOut } = NextAuth({
     adapter: MongoDBAdapter(client),
     trustHost: true,
+    session: { strategy: "jwt" },
     // Prevent PKCE verifier cookie from being marked `Secure` on local http,
     // which can lead to "Invalid code verifier" during OAuth callback.
     useSecureCookies: process.env.NODE_ENV === "production",
-  providers: [Google({
-    clientId: process.env.AUTH_GOOGLE_ID!,
-    clientSecret: process.env.AUTH_GOOGLE_SECRET!,
-     authorization: {
+  providers: [
+    Credentials({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        const email = typeof credentials?.email === "string" ? credentials.email.trim().toLowerCase() : "";
+        const password = typeof credentials?.password === "string" ? credentials.password : "";
+        if (!email || !password) return null;
+
+        const db = (await client).db();
+        const user = (await db.collection("users").findOne({ email })) as
+          | { _id: ObjectId; email?: string; name?: string; image?: string; password?: string }
+          | null;
+
+        if (!user?.password) return null;
+        if (!verifyPassword(password, String(user.password))) return null;
+
+        // Migrate legacy plaintext passwords on successful login.
+        if (!String(user.password).startsWith("scrypt:")) {
+          await db
+            .collection("users")
+            .updateOne({ _id: user._id }, { $set: { password: hashPassword(password) } });
+        }
+
+        return {
+          id: user._id.toString(),
+          email: user.email ?? email,
+          name: user.name ?? null,
+          image: user.image ?? null,
+        };
+      },
+    }),
+    Google({
+      clientId: process.env.AUTH_GOOGLE_ID!,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET!,
+      // Link Google sign-ins to an existing user with the same verified email
+      // (so credentials sign-up and Google OAuth end up as the same account).
+      allowDangerousEmailAccountLinking: true,
+      authorization: {
         params: {
           // "select_account" forces Google’s account picker so sign-in is not silently
           // bound to whichever Google profile is already active in the browser.
@@ -79,8 +121,29 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           response_type: "code",
         },
       },
-  })],
+    }),
+  ],
 callbacks: {
+        async signIn({ user, account }) {
+            if (account?.provider === "google") {
+                const id = getIdFromUnknownUser(user);
+                const rawEmail = (user as { email?: string } | null | undefined)?.email;
+                const email = typeof rawEmail === "string" ? rawEmail.trim().toLowerCase() : undefined;
+                const name = (user as { name?: string } | null | undefined)?.name;
+                const image = (user as { image?: string } | null | undefined)?.image;
+
+                // Keep the DB user doc updated with latest Google profile fields.
+                // (No-op if user doesn't exist for some reason.)
+                if (id && ObjectId.isValid(id)) {
+                    const db = (await client).db();
+                    await db.collection("users").updateOne(
+                        { _id: new ObjectId(id) },
+                        { $set: { ...(email ? { email } : {}), ...(name ? { name } : {}), ...(image ? { image } : {}) } },
+                    );
+                }
+            }
+            return true;
+        },
         async jwt({ token, user, account }) {
             const t = token as unknown as TokenShape;
 

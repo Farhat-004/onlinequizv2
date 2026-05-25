@@ -23,7 +23,7 @@ export default function TeacherExamCard({ exam }: { exam: TeacherExam }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="group rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+    <div className="group rounded-3xl border border-slate-200 bg-white/70 backdrop-blur p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
