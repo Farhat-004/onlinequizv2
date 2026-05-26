@@ -33,7 +33,7 @@ export default function StudentDashboard({
   pastExams: PastExam[];
 }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br bg-image1 from-slate-50 via-white to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br bg-image1 text-black from-slate-50 via-white to-indigo-50">
       <div className="max-w-6xl mx-auto p-6">
         <DashboardRoleSwitcher hasBothRoles={hasBothRoles} />
         <div className="grid gap-6 md:grid-cols-3">
@@ -61,13 +61,13 @@ export default function StudentDashboard({
                     </div>
                   </div>
                   <div className="min-w-0">
-                    <div className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
+                    <div className="text-xs font-semibold tracking-wide text-black uppercase">
                       Dashboard
                     </div>
-                    <h1 className="mt-1 text-2xl font-bold text-slate-900 truncate">
+                    <h1 className="mt-1 text-2xl font-bold text-black truncate">
                       Welcome, {user.name}
                     </h1>
-                    <div className="mt-1 text-sm text-slate-600 truncate">{user.email}</div>
+                    <div className="mt-1 text-sm text-black truncate">{user.email}</div>
                   </div>
                 </div>
                 <div className="shrink-0">
@@ -76,15 +76,15 @@ export default function StudentDashboard({
               </div>
 
               <div className="mt-6 flex flex-wrap items-center gap-2 text-sm text-slate-600">
-                <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 shadow-sm">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 shadow-sm">
                   <span className="size-2 rounded-full bg-indigo-500" />
                   Exams taken:{" "}
-                  <span className="font-semibold text-slate-900">{pastExams.length}</span>
+                  <span className="font-semibold text-black">{pastExams.length}</span>
                 </span>
                 <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 shadow-sm">
                   <span className="size-2 rounded-full bg-fuchsia-500" />
                   Average:{" "}
-                  <span className="font-semibold text-slate-900">{averagePercent}%</span>
+                  <span className="font-semibold text-black">{averagePercent}%</span>
                 </span>
               </div>
             </div>
@@ -94,30 +94,30 @@ export default function StudentDashboard({
             <div className="p-6">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
+                  <div className="text-xs font-semibold tracking-wide text-black uppercase">
                     Profile
                   </div>
-                  <div className="mt-1 text-lg font-semibold text-slate-900 truncate">
+                  <div className="mt-1 text-lg font-semibold text-black truncate">
                     User details
                   </div>
                 </div>
-                <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-sm">
+                <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-black shadow-sm">
                   {user.role}
                 </span>
               </div>
 
               <div className="mt-5 space-y-3 text-sm">
                 <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
-                  <span className="text-slate-600">Role</span>
-                  <span className="font-semibold text-slate-900">{user.role}</span>
+                  <span className="text-black">Role</span>
+                  <span className="font-semibold text-black">{user.role}</span>
                 </div>
                 <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
-                  <span className="text-slate-600">Exams taken</span>
-                  <span className="font-semibold text-slate-900">{pastExams.length}</span>
+                  <span className="text-black">Exams taken</span>
+                  <span className="font-semibold text-black">{pastExams.length}</span>
                 </div>
                 <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
-                  <span className="text-slate-600">Average</span>
-                  <span className="font-semibold text-slate-900">{averagePercent}%</span>
+                  <span className="text-black">Average</span>
+                  <span className="font-semibold text-black">{averagePercent}%</span>
                 </div>
               </div>
             </div>
@@ -144,7 +144,7 @@ export default function StudentDashboard({
               </span>
               <h2 className="font-semibold text-slate-900">Past exams</h2>
             </div>
-            <div className="text-sm text-slate-600">
+              <div className="text-sm text-black">
               <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2.5 py-1 shadow-sm">
                 {pastExams.length} results
               </span>
@@ -152,13 +152,13 @@ export default function StudentDashboard({
           </div>
           <div className="p-5">
             {pastExams.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-sm text-slate-600">
+              <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-sm text-black">
                 No results yet.
               </div>
             ) : (
               <div className="overflow-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
                 <table className="min-w-full text-sm">
-                  <thead className="bg-slate-50 text-slate-600">
+                  <thead className="bg-slate-50 text-black">
                     <tr>
                       <th className="text-left font-medium px-4 py-3">Exam</th>
                       <th className="text-left font-medium px-4 py-3">Score</th>
@@ -170,17 +170,17 @@ export default function StudentDashboard({
                     {pastExams.map((r) => (
                       <tr
                         key={r._id}
-                        className="text-slate-900 hover:bg-slate-50/70 transition"
+                        className="text-black hover:bg-slate-50/70 transition"
                       >
                         <td className="px-4 py-3">
                           <div className="font-medium">{r.title}</div>
-                          <div className="text-xs text-slate-600">Exam ID: {r.examId}</div>
+                          <div className="text-xs text-black">Exam ID: {r.examId}</div>
                         </td>
                         <td className="px-4 py-3">
                           {r.score}/{r.totalMarks}
                         </td>
                         <td className="px-4 py-3">
-                          <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-800">
+                          <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-black">
                             {r.percent}%
                           </span>
                         </td>
