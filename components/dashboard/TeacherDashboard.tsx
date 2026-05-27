@@ -43,7 +43,7 @@ export default function TeacherDashboard({
     <div className="min-h-screen bg-gradient-to-br from-slate-50 bg-image1 via-white to-indigo-50">
       <div className="max-w-6xl mx-auto p-6 app-bg">
         <DashboardRoleSwitcher hasBothRoles={hasBothRoles} />
-        <div className="overflow-hidden rounded-3xl border border-slate-200 app-bg bg-white/70 backdrop-blur shadow-sm">
+        <div className="overflow-hidden rounded-3xl border border-slate-200 home-bg bg-white/70 backdrop-blur shadow-sm">
           <div className="p-6 sm:p-8">
             <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
               <div className="flex items-center gap-4 min-w-0">

@@ -59,30 +59,30 @@ export default function NewExam() {
     }
   };
   return (
-    <div className="min-h-screen app-bg">
+    <div className="min-h-screen home-bg2">
       <header className="border-b border-slate-200 bg-white/70 backdrop-blur">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <div>
-            <div className="text-xs font-semibold tracking-wide text-slate-500 uppercase">Teacher</div>
-            <div className="text-xl font-bold text-slate-900">Create Quiz</div>
+            <div className="text-xs font-semibold tracking-wide text-black uppercase">Teacher</div>
+            <div className="text-xl font-bold text-black">Create Quiz</div>
           </div>
           {joinCode ? (
             <div className="badge">
-              Join Code: <span className="font-mono text-slate-900">{joinCode}</span>
+              Join Code: <span className="font-mono text-black">{joinCode}</span>
             </div>
           ) : null}
         </div>
       </header>
       <main className="p-6">
-        <div className="max-w-4xl mx-auto glass-card p-6 yaxisbg">
-          <h2 className="text-lg font-semibold mb-4 text-slate-900">Quiz Builder</h2>
+        <div className="max-w-4xl mx-auto glass-card p-6 home-bg2">
+          <h2 className="text-lg font-semibold mb-4 text-black">Quiz Builder</h2>
           <form onSubmit={handleCreate} className="space-y-1">
             {/* custom config */}
            <span className='gap-2 flex-col md:flex-row flex'>
-             <label className="text-sm font-medium mt-1 text-slate-700 w-40">Quiz Tittle :</label>
+             <label className="text-sm font-medium mt-1 text-black w-40">Quiz Tittle :</label>
                 <input value={config.title} type='text' onChange={e => setConfig({...config, title: e.target.value})} className="input flex-1" required={true}/>
                
-             <label className="text-sm font-medium mt-1 text-slate-700 w-40 ">Password :</label>
+             <label className="text-sm font-medium mt-1 text-black w-40 ">Password :</label>
                 <input value={config.password} type='text' onChange={e => setConfig({...config, password: e.target.value})} className="input flex-1 gap-0" required={true}/>
                
            </span>
@@ -90,20 +90,20 @@ export default function NewExam() {
                 
                 <div className='flex flex-wrap gap-4'>
                 <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-slate-700 w-40">Duration (Minutes):</label>
+                <label className="text-sm font-medium text-black w-40">Duration (Minutes):</label>
                 <input value={config.durationMinutes} type='number' onChange={e => setConfig({...config, durationMinutes: parseInt(e.target.value)})} className="input flex-1" required={true}/>
                 </div>
                 <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-slate-700 w-40 pl-5">Marks Per Question :</label>
+                <label className="text-sm font-medium text-black w-40 pl-5">Marks Per Question :</label>
                 <input value={config.marksPerQues} type='number' onChange={e => setConfig({...config, marksPerQues: parseInt(e.target.value)})} className="input flex-1" required={true}/>
                 </div>
                
                 <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-slate-700 w-40">Start Time:</label>
+                <label className="text-sm font-medium text-black w-40">Start Time:</label>
                 <input value={config.startTime} type='date' onChange={e => setConfig({...config, startTime: e.target.value})} className="input flex-1" required={true}/>
                 </div>
                 <div className="flex items-center gap-2 ml-16">
-                <label className="text-sm font-medium text-slate-700 w-40">End Time:</label>
+                <label className="text-sm font-medium text-black w-40">End Time:</label>
                 <input value={config.endTime} type='date' onChange={e => setConfig({...config, endTime: e.target.value})} className="input flex-1" required={true}/>
                 </div>
                 </div>
@@ -112,7 +112,7 @@ export default function NewExam() {
               {questions.map((q, qi) => (
                 <div key={qi} className="p-4 border border-slate-200 rounded-3xl bg-white shadow-sm">
                     <div className="flex  flex-row items-center">
-                <p className="text-slate-600 font-semibold">{ q.serial}.</p>
+                  <p className="text-black font-semibold">{ q.serial}.</p>
                   <input placeholder={q.text} value={q.text} onChange={e => { const copy = [...questions]; copy[qi].text = e.target.value; setQuestions(copy) }} className="input w-full m-2" required={true}/>
                   </div>
                   <div className="grid grid-cols-1 gap-2">
@@ -127,21 +127,21 @@ export default function NewExam() {
               ))}
             </div>
             <div className="flex gap-2">
-              {created?<><span className="text-green-600 font-semibold pl-5">Quiz Created Successfully! {"   "} <button onClick={handleCopy} className="btn-primary">Copy Join Code : {joinCode}</button></span>
+              {created?<><span className="text-black font-semibold pl-5">Quiz Created Successfully! {"   "} <button type="button" onClick={handleCopy} className="btn-primary">Copy Join Code : {joinCode}</button></span>
               <Link href="/">Return to Dashboard</Link>
               </>:
                 (<>
               <button type="submit" className="btn-primary" disabled={created}>
                 {created ? "Quiz Created!" : "Create Quiz"}
               </button>
-              <button onClick={()=>{setNumOfQues(prev=>prev+1)}} className="btn-outline">Add +1</button>
-              <button onClick={()=>{setNumOfQues(prev=>prev+5)}} className="btn-outline">Add +5</button>
-              <button onClick={()=>{setNumOfQues(prev=>prev-1)}} className="btn-danger">Remove -1</button>
+              <button type="button" onClick={()=>{setNumOfQues(prev=>prev+1)}} className="btn-outline">Add +1</button>
+              <button type="button" onClick={()=>{setNumOfQues(prev=>prev+5)}} className="btn-outline">Add +5</button>
+              <button type="button" onClick={()=>{setNumOfQues(prev=>prev-1)}} className="btn-danger">Remove -1</button>
               
               </>)} 
            
             </div>
-               <Link href="/" className="text-right left-0 p-2 text-blue-500 hover:text-blue-700">
+               <Link href="/dashboard" className="text-right left-0 p-2 text-black hover:text-black">
                 Return to Dashboard
               </Link>
           </form>

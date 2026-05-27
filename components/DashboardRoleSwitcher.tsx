@@ -34,7 +34,7 @@ export default function DashboardRoleSwitcher({ hasBothRoles }: { hasBothRoles: 
   }
 
   return (
-    <div className="mb-6 overflow-hidden rounded-2xl border border-slate-200 bg-white/70 backdrop-blur px-4 py-3 shadow-sm flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mb-6 overflow-hidden rounded-2xl border border-slate-200 app-bg bg-white/70 backdrop-blur px-4 py-3 shadow-sm flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-start gap-3 text-sm text-slate-800">
         <div className="mt-0.5 grid size-8 place-items-center rounded-xl bg-gradient-to-br from-indigo-600 to-fuchsia-600 text-white shadow-sm">
           <svg viewBox="0 0 24 24" className="size-4" fill="none" aria-hidden="true">

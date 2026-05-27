@@ -40,13 +40,13 @@ export default function PerformanceCircle({
           />
         </svg>
         <div className="absolute inset-0 grid place-items-center">
-          <div className="text-lg font-bold text-slate-900">{v}%</div>
+          <div className="text-lg font-bold text-black">{v}%</div>
         </div>
       </div>
       {label ? (
-        <div className="text-sm font-semibold text-slate-700">
+        <div className="text-sm font-semibold text-black">
           {label}
-          <div className="text-xs font-normal text-slate-500">Average score</div>
+          <div className="text-xs font-normal text-black">Average score</div>
         </div>
       ) : null}
     </div>

@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { dbConnect } from "@/lib/mongodb";
 import ExamModel from "@/models/ExamModel";
 import ResultModel from "@/models/ResultModel";
+import "@/models/UserModel";
 
 function asString(v: unknown): string | null {
   return typeof v === "string" && v.length > 0 ? v : null;

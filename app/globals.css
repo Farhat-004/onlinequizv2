@@ -29,6 +29,12 @@ body {
   background-size: cover;
   background-position: center;
 }
+.home-bg2 {
+  background-image: url('/bgweb1.jpg');
+  background-repeat: repeat;
+  background-size: cover;
+  background-position: center;
+}
 .bg-image1 {
   background-image: url('/bgweb2.jpg');
   background-repeat: no-repeat;
