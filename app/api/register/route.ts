@@ -3,15 +3,33 @@ import { hashPassword } from "@/lib/password";
 
 export async function POST(req: Request) {
     const { dbConnect } = await import("../../../lib/mongodb");
-    const userData = await req.json();
-    dbConnect();
-    const rawRole = userData.role || "user";
-    const email = typeof userData.email === "string" ? userData.email.trim().toLowerCase() : userData.email;
-    const password = typeof userData.password === "string" ? hashPassword(userData.password) : userData.password;
+    const userData = await req.json().catch(() => null);
+    if (!userData || typeof userData !== "object") {
+        return Response.json({ message: "Invalid JSON" }, { status: 400 });
+    }
+
+    const data = userData as Record<string, unknown>;
+    const name = typeof data.name === "string" ? data.name.trim() : "";
+    const email = typeof data.email === "string" ? data.email.trim().toLowerCase() : "";
+    const rawPassword = typeof data.password === "string" ? data.password : "";
+    const rawRole = data.role === "both" || data.role === "teacher" || data.role === "student" ? data.role : "";
+
+    if (!name || !email || !rawPassword || !rawRole) {
+        return Response.json({ message: "Name, email, password, and role are required" }, { status: 400 });
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return Response.json({ message: "Invalid email address" }, { status: 400 });
+    }
+    if (rawPassword.length < 8) {
+        return Response.json({ message: "Password must be at least 8 characters" }, { status: 400 });
+    }
+
+    await dbConnect();
+    const password = hashPassword(rawPassword);
     const newUser =
         rawRole === "both" ?
             {
-                name: userData.name,
+                name,
                 email,
                 password,
                 roles: ["teacher", "student"],
@@ -19,26 +37,22 @@ export async function POST(req: Request) {
                 role: "teacher",
             }
         :   {
-                name: userData.name,
+                name,
                 email,
                 password,
                 role: rawRole,
+                roles: [rawRole],
+                activeRole: rawRole,
             };
 
     try {
-        const response = await User.create(newUser);
-        return new Response(
-            JSON.stringify({ message: "User created", user: response }),
-            {
-                status: 201,
-            },
-        );
+        await User.create(newUser);
+        return Response.json({ message: "User created" }, { status: 201 });
     } catch (error) {
-        return new Response(
-            JSON.stringify({ message: error.message || "failed" }),
-            {
-                status: 401,
-            },
-        );
+        const message =
+            error instanceof Error && error.message.includes("E11000") ?
+                "Email already in use"
+            :   "Registration failed";
+        return Response.json({ message }, { status: 400 });
     }
 }

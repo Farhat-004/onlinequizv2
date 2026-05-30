@@ -53,6 +53,11 @@ export default async function QuizResultPage({ searchParams }: Props) {
   const examQuestions = Array.isArray((exam as { questions?: unknown }).questions) ?
       ((exam as { questions?: unknown[] }).questions ?? [])
     : []
+  const marksPerQuestion = Number((exam as { marksPerQues?: unknown } | null)?.marksPerQues) || 0
+  const totalMarks =
+    examQuestions.length > 0 && marksPerQuestion > 0 ?
+      examQuestions.length * marksPerQuestion
+    : Number(result.totalMarks) || 0
 
   return (
     <section className="min-h-screen app-bg p-6">
@@ -63,7 +68,7 @@ export default async function QuizResultPage({ searchParams }: Props) {
         <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-slate-700">
           <span className="badge">
             Score: <span className="font-semibold text-slate-900">{result.score}</span> /{" "}
-            {result.totalMarks}
+            {totalMarks}
           </span>
           {typeof result.correctCount === "number" && typeof result.totalQuestions === "number" ? (
             <span className="badge">

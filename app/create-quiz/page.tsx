@@ -2,7 +2,6 @@
 import Link from "next/link";
 import { useSession } from 'next-auth/react'
 import { useState, useEffect } from 'react'
-
 export default function NewExam() {
   type Choice = { text: string; isCorrect?: boolean }
   type Question = { text: string; serial: number; choices: Choice[] }
@@ -13,6 +12,8 @@ export default function NewExam() {
   const session=useSession();
   
   const userId = (session?.data as unknown as { userId?: string | null } | null)?.userId ?? null
+  const marksPerQuestion = Number.isFinite(config.marksPerQues) ? config.marksPerQues : 0
+  const totalMarks = questions.length * marksPerQuestion
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- keep existing behavior; only UI changes intended
     setQuestions(prev => {
@@ -36,19 +37,17 @@ export default function NewExam() {
     e.preventDefault()
     
     const quizData={
-      userId,
-      config,
+      config: { ...config, totalMarks },
       questions,
     }
    
     const res = await fetch('/api/exams', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(quizData) })
-    if(res.status==401) alert("failed")
-    const data = await res.json()
+    const data = await res.json().catch(() => ({}))
     if (res.ok) {
       setJoinCode(data.joinCode)
       setCreated(true)
     } else {
-      alert(data.error )
+      alert(data.message || "Failed to create quiz")
     }
   }
   const handleCopy = () => {
@@ -58,6 +57,18 @@ export default function NewExam() {
         .catch(() => alert('Failed to copy join code. Please try copying manually: ' + joinCode));
     }
   };
+  if(!userId){
+    return (
+      <div className="min-h-screen home-bg2 flex items-center justify-center p-6">
+        <div className="glass-card p-6 text-center">
+          <h1 className="text-xl font-bold text-black">Please sign in</h1>
+          <Link href="/signin" className="btn-primary mt-4">
+            Go to sign in
+          </Link>
+        </div>
+      </div>
+    )
+  }
   return (
     <div className="min-h-screen home-bg2">
       <header className="border-b border-slate-200 bg-white/70 backdrop-blur">
@@ -96,6 +107,10 @@ export default function NewExam() {
                 <div className="flex items-center gap-2">
                 <label className="text-sm font-medium text-black w-40 pl-5">Marks Per Question :</label>
                 <input value={config.marksPerQues} type='number' onChange={e => setConfig({...config, marksPerQues: parseInt(e.target.value)})} className="input flex-1" required={true}/>
+                </div>
+                <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-slate-700 w-40">Total Marks:</label>
+                <input value={totalMarks} type='number' className="input flex-1" readOnly/>
                 </div>
                
                 <div className="flex items-center gap-2">
@@ -136,7 +151,7 @@ export default function NewExam() {
               </button>
               <button type="button" onClick={()=>{setNumOfQues(prev=>prev+1)}} className="btn-outline">Add +1</button>
               <button type="button" onClick={()=>{setNumOfQues(prev=>prev+5)}} className="btn-outline">Add +5</button>
-              <button type="button" onClick={()=>{setNumOfQues(prev=>prev-1)}} className="btn-danger">Remove -1</button>
+              <button type="button" onClick={()=>{setNumOfQues(prev=>Math.max(1, prev-1))}} className="btn-danger">Remove -1</button>
               
               </>)} 
            

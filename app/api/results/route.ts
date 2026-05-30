@@ -1,30 +1,96 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { dbConnect } from "@/lib/mongodb";
+import { verifyPassword } from "@/lib/password";
 import ExamModel from "@/models/ExamModel";
 import ResultModel from "@/models/ResultModel";
+import "@/models/QuestionModel";
+
+type SessionShape = {
+    userId?: unknown;
+    user?: { id?: unknown; _id?: unknown };
+};
+
+type QuestionShape = {
+    _id?: unknown;
+    choices?: { isCorrect?: unknown }[];
+};
+
+type ExamShape = {
+    _id?: unknown;
+    userId?: unknown;
+    title?: unknown;
+    password?: unknown;
+    startTime?: unknown;
+    endTime?: unknown;
+    marksPerQues?: unknown;
+    totalMarks?: unknown;
+    questions?: QuestionShape[];
+};
+
+type ResultShape = {
+    _id?: unknown;
+    score?: unknown;
+    totalMarks?: unknown;
+    correctCount?: unknown;
+    totalQuestions?: unknown;
+};
+
+type AnswerResult = {
+    questionId: string | null;
+    selectedIndex: number | null;
+    correctIndex: number;
+    correct: boolean;
+};
 
 function asObjectIdString(v: unknown): string | null {
     if (!v) return null;
-    if (typeof v === "string") return v;
-    if (typeof v === "object" && typeof (v as any).toString === "function")
-        return (v as any).toString();
+    if (typeof v === "string" && v.length > 0) return v;
+    if (typeof v === "object" && "toString" in v) {
+        const value = v.toString();
+        return value && value !== "[object Object]" ? value : null;
+    }
     return null;
+}
+
+function getSessionUserId(session: unknown): string | null {
+    const s = session as SessionShape | null;
+    return asObjectIdString(s?.userId || s?.user?.id || s?.user?._id);
+}
+
+function examTotalMarks(exam: ExamShape): number {
+    const questions = Array.isArray(exam.questions) ? exam.questions : [];
+    const marksPerQues = Number(exam.marksPerQues) || 0;
+    return Math.round(questions.length * marksPerQues);
+}
+
+function serializeExistingResult(existing: ResultShape, totalMarks?: number) {
+    return {
+        message: "already_submitted",
+        resultId: asObjectIdString(existing._id),
+        score: Number(existing.score) || 0,
+        totalMarks: totalMarks || Number(existing.totalMarks) || 0,
+        correctCount: Number(existing.correctCount) || 0,
+        totalQuestions: Number(existing.totalQuestions) || 0,
+        perQuestion: [],
+    };
 }
 
 export async function POST(request: NextRequest) {
     const session = await auth();
-    const studentId = asObjectIdString(
-        (session as any)?.userId || (session as any)?.user?.id || (session as any)?.user?._id,
-    );
+    const studentId = getSessionUserId(session);
     if (!studentId) {
         return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json().catch(() => ({}));
-    const joinCode = (body as any)?.joinCode;
+    const bodyRecord = body as Record<string, unknown>;
+    const joinCode = bodyRecord.joinCode;
+    const password = typeof bodyRecord.password === "string" ? bodyRecord.password : "";
     const answers =
-        (body as any)?.answers && typeof (body as any).answers === "object" ? (body as any).answers : {};
+        bodyRecord.answers && typeof bodyRecord.answers === "object" ?
+            (bodyRecord.answers as Record<string, unknown>)
+        :   {};
 
     if (!joinCode) {
         return NextResponse.json(
@@ -35,45 +101,51 @@ export async function POST(request: NextRequest) {
 
     await dbConnect();
 
-    const exam = await ExamModel.findOne({ joinCode }).populate("questions");
+    const exam = (await ExamModel.findOne({ joinCode }).populate("questions")) as ExamShape | null;
     if (!exam) {
         return NextResponse.json({ message: "Exam not found" }, { status: 404 });
     }
-
-    const existing = await ResultModel.findOne({
-        studentId,
-        examId: exam._id,
-    }).lean();
-    if (existing) {
-        return NextResponse.json(
-            {
-                message: "already_submitted",
-                resultId: asObjectIdString((existing as any)?._id),
-                score: (existing as any).score,
-                totalMarks: (existing as any).totalMarks,
-                correctCount: (existing as any).correctCount,
-                totalQuestions: (existing as any).totalQuestions,
-                perQuestion: [],
-            },
-            { status: 200 },
-        );
+    const storedPassword = typeof exam.password === "string" ? exam.password : "";
+    if (storedPassword) {
+        const passwordOk =
+            storedPassword.startsWith("scrypt:") ?
+                verifyPassword(password, storedPassword)
+            :   password === storedPassword;
+        if (!passwordOk) {
+            return NextResponse.json({ message: "Invalid password" }, { status: 401 });
+        }
     }
 
-    const questions = Array.isArray((exam as any).questions) ? (exam as any).questions : [];
+    const now = Date.now();
+    const startMs = new Date(String(exam.startTime)).getTime();
+    const endMs = new Date(String(exam.endTime)).getTime();
+    if (Number.isFinite(startMs) && now < startMs) {
+        return NextResponse.json({ message: "Exam has not started yet" }, { status: 403 });
+    }
+    if (Number.isFinite(endMs) && now > endMs) {
+        return NextResponse.json({ message: "Exam has already ended" }, { status: 403 });
+    }
+
+    const existing = (await ResultModel.findOne({
+        studentId,
+        examId: exam._id,
+    }).lean()) as ResultShape | null;
+    if (existing) {
+        return NextResponse.json(serializeExistingResult(existing, examTotalMarks(exam)), { status: 200 });
+    }
+
+    const questions = Array.isArray(exam.questions) ? exam.questions : [];
     const totalQuestions = questions.length;
 
     const marksPerQues =
-        typeof (exam as any).marksPerQues === "number" ? (exam as any).marksPerQues
-        : typeof (exam as any).totalMarks === "number" && totalQuestions > 0 ?
-            (exam as any).totalMarks / totalQuestions
+        typeof exam.marksPerQues === "number" ? exam.marksPerQues
+        : typeof exam.totalMarks === "number" && totalQuestions > 0 ?
+            exam.totalMarks / totalQuestions
         :   1;
 
-    const totalMarks =
-        typeof (exam as any).totalMarks === "number" ?
-            (exam as any).totalMarks
-        :   Math.round(marksPerQues * totalQuestions);
+    const totalMarks = Math.round(marksPerQues * totalQuestions);
 
-    const perQuestion = questions.map((q: any) => {
+    const perQuestion: AnswerResult[] = questions.map((q) => {
         const qid = asObjectIdString(q?._id);
         const selectedRaw = qid ? answers[qid] : null;
         const selectedIndex =
@@ -81,7 +153,7 @@ export async function POST(request: NextRequest) {
 
         const correctIndex =
             Array.isArray(q?.choices) ?
-                q.choices.findIndex((c: any) => Boolean(c?.isCorrect))
+                q.choices.findIndex((c) => Boolean(c?.isCorrect))
             :   -1;
 
         const boundedSelected =
@@ -103,19 +175,19 @@ export async function POST(request: NextRequest) {
         };
     });
 
-    const correctCount = perQuestion.filter((pq: any) => pq.correct).length;
+    const correctCount = perQuestion.filter((pq) => pq.correct).length;
     const score = Math.round(correctCount * marksPerQues);
 
     const resultDoc = await ResultModel.create({
         studentId,
-        examTittle: (exam as any).title,
-        examinerId: (exam as any).userId,
-        examId: (exam as any)._id,
+        examTittle: exam.title,
+        examinerId: exam.userId,
+        examId: exam._id,
         score,
         totalMarks,
         correctCount,
         totalQuestions,
-        answers: perQuestion.map((pq: any) => ({
+        answers: perQuestion.map((pq) => ({
             questionId: pq.questionId,
             selectedIndex: pq.selectedIndex,
             correct: pq.correct,
@@ -126,7 +198,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
         {
             message: "submitted",
-            resultId: asObjectIdString((resultDoc as any)?._id),
+            resultId: asObjectIdString((resultDoc as { _id?: unknown })?._id),
             score,
             totalMarks,
             correctCount,
@@ -139,9 +211,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(req: NextRequest) {
     const session = await auth();
-    const studentId = asObjectIdString(
-        (session as any)?.userId || (session as any)?.user?.id || (session as any)?.user?._id,
-    );
+    const studentId = getSessionUserId(session);
     if (!studentId) {
         return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
@@ -156,15 +226,15 @@ export async function GET(req: NextRequest) {
     }
 
     await dbConnect();
-    const exam = await ExamModel.findOne({ joinCode }).lean();
+    const exam = (await ExamModel.findOne({ joinCode }).lean()) as ExamShape | null;
     if (!exam) {
         return NextResponse.json({ message: "Exam not found" }, { status: 404 });
     }
 
-    const existing = await ResultModel.findOne({
+    const existing = (await ResultModel.findOne({
         studentId,
-        examId: (exam as any)._id,
-    }).lean();
+        examId: exam._id,
+    }).lean()) as ResultShape | null;
 
     if (!existing) {
         return NextResponse.json({ submitted: false }, { status: 200 });
@@ -174,11 +244,11 @@ export async function GET(req: NextRequest) {
         {
             submitted: true,
             message: "already_submitted",
-            resultId: asObjectIdString((existing as any)?._id),
-            score: (existing as any).score,
-            totalMarks: (existing as any).totalMarks,
-            correctCount: (existing as any).correctCount,
-            totalQuestions: (existing as any).totalQuestions,
+            resultId: asObjectIdString(existing._id),
+            score: Number(existing.score) || 0,
+            totalMarks: Number(existing.totalMarks) || 0,
+            correctCount: Number(existing.correctCount) || 0,
+            totalQuestions: Number(existing.totalQuestions) || 0,
         },
         { status: 200 },
     );

@@ -46,9 +46,9 @@ export default function QuizClient() {
   const searchParams = useSearchParams()
   const router = useRouter()
 
-  const joinCode = searchParams.get("joinCode")
+  const joinCode = searchParams?.get("joinCode")
   const joinCodeStr = joinCode ?? ""
-  const password = searchParams.get("password") ?? ""
+  const password = searchParams?.get("password") ?? ""
   const [exam, setExam] = useState<Exam | null>(null)
   const [answers, setAnswers] = useState<Record<string, number | null>>({})
   const [timeLeftSec, setTimeLeftSec] = useState<number | null>(null)
@@ -123,7 +123,7 @@ export default function QuizClient() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ joinCode: joinCodeStr, answers }),
+        body: JSON.stringify({ joinCode: joinCodeStr, password, answers }),
       })
       const bodyUnknown: unknown = await res.json().catch(() => ({}))
       const body = bodyUnknown as Partial<SubmitResponse> & {
@@ -135,13 +135,12 @@ export default function QuizClient() {
       if (body?.resultId) {
         router.push(`/quiz/result?resultId=${encodeURIComponent(body.resultId)}`)
       }
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to submit result"
-      console.log(message)
+    } catch {
+      setBlockedMessage("Failed to submit result. Please try again.")
     } finally {
       setSubmitting(false)
     }
-  }, [answers, joinCodeStr, router, submitting, submitted])
+  }, [answers, joinCodeStr, password, router, submitting, submitted])
 
   // timer
   const prevTimeLeftRef = useRef<number | null>(null)

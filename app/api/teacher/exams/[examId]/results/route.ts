@@ -4,6 +4,24 @@ import ExamModel from "@/models/ExamModel";
 import ResultModel from "@/models/ResultModel";
 import "@/models/UserModel";
 
+type SessionShape = {
+  userId?: unknown;
+  role?: unknown;
+  user?: { id?: unknown };
+};
+
+type ResultRecord = {
+  _id?: unknown;
+  studentId?: {
+    name?: unknown;
+    email?: unknown;
+    image?: unknown;
+  } | null;
+  score?: unknown;
+  totalMarks?: unknown;
+  submittedAt?: unknown;
+};
+
 function asString(v: unknown): string | null {
   return typeof v === "string" && v.length > 0 ? v : null;
 }
@@ -17,8 +35,9 @@ export async function GET(
     return Response.json({ message: "Unauthorized" }, { status: 401 });
   }
 
-  const userId = asString((session as any)?.userId) ?? asString((session as any)?.user?.id);
-  const role = asString((session as any)?.role);
+  const s = session as SessionShape;
+  const userId = asString(s.userId) ?? asString(s.user?.id);
+  const role = asString(s.role);
   if (!userId || role !== "teacher") {
     return Response.json({ message: "Forbidden" }, { status: 403 });
   }
@@ -34,30 +53,35 @@ export async function GET(
   if (!exam) {
     return Response.json({ message: "Exam not found" }, { status: 404 });
   }
+  const questionCount = Array.isArray((exam as { questions?: unknown[] }).questions)
+    ? (exam as { questions: unknown[] }).questions.length
+    : 0;
+  const marksPerQues = Number((exam as { marksPerQues?: unknown }).marksPerQues) || 0;
+  const examTotalMarks = questionCount * marksPerQues;
 
-  const results = await ResultModel.find({ examId })
+  const results = (await ResultModel.find({ examId })
     .populate("studentId", "name email image")
     .sort({ submittedAt: -1 })
-    .lean();
+    .lean()) as ResultRecord[];
 
-  const mapped = results.map((r: any) => {
-    const totalMarks = Number(r.totalMarks) || 0;
+  const mapped = results.map((r) => {
+    const totalMarks = examTotalMarks || Number(r.totalMarks) || 0;
     const score = Number(r.score) || 0;
     const percent = totalMarks > 0 ? Math.round((score / totalMarks) * 100) : 0;
-    const s = r.studentId as any;
+    const student = r.studentId;
     return {
       _id: String(r._id),
-      student: s
+      student: student
         ? {
-            name: s.name,
-            email: s.email,
-            image: s.image,
+            name: typeof student.name === "string" ? student.name : "",
+            email: typeof student.email === "string" ? student.email : "",
+            image: typeof student.image === "string" ? student.image : "",
           }
         : null,
       score,
       totalMarks,
       percent,
-      submittedAt: r.submittedAt ? new Date(r.submittedAt).toISOString() : null,
+      submittedAt: r.submittedAt ? new Date(String(r.submittedAt)).toISOString() : null,
     };
   });
 

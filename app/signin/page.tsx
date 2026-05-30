@@ -42,9 +42,8 @@ export default function Login() {
 
 	      router.replace(result?.url ?? "/");
 	      router.refresh();
-	    } catch (err) {
+	    } catch {
 	      setError('An error occurred. Please try again.');
-	      console.log(err);
     } finally {
       setLoading(false);
     }

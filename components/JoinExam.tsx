@@ -50,7 +50,6 @@ export default function JoinExam() {
       }
       const data = (await res.json()) as Exam;
       setExam(data);
-      console.log("Exam data:", data);
       setDateExpired(Boolean(data?.dateExpired) || isExamExpired(data?.endTime));
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Failed to fetch exam"

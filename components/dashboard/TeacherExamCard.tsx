@@ -8,6 +8,8 @@ export type TeacherExam = {
   title: string;
   joinCode: string;
   totalMarks?: number;
+  marksPerQues?: number;
+  questionCount?: number;
   durationMinutes: number;
   startTime: string | Date;
   endTime: string | Date;
@@ -109,4 +111,3 @@ export default function TeacherExamCard({ exam }: { exam: TeacherExam }) {
     </div>
   );
 }
-

@@ -46,19 +46,13 @@ export default function SignUpPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        console.log(data.message.split(" ")[0])
-        if(data.message.split(" ")[0]=='E11000') {
-          setError('Email already in use');
-          return;
-        }
-        setError( 'Sign up failed');
+        setError(data?.message || 'Sign up failed');
         return;
       }
 
       router.push('/signin');
-    } catch (err) {
+    } catch {
       setError('An error occurred. Please try again.');
-      console.error(err);
     } finally {
       setLoading(false);
     }

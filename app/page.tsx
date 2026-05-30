@@ -6,9 +6,8 @@ import { redirect } from 'next/navigation'
 
 export default async function Home() {
   const user = await auth()
-  console.log("User in Home page:", user)
   if (!user) return <LandingPage />
-  if(user.role === 'teacher') {
+  if((user as { role?: unknown }).role === 'teacher') {
     return redirect('/dashboard')
   }
   return <JoinExam />

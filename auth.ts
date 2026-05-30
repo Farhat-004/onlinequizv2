@@ -59,7 +59,7 @@ async function refreshAccessToken(token: TokenShape) {
             refreshToken: refreshedTokens?.refresh_token ?? token.refreshToken,
         } satisfies TokenShape;
     } catch (error) {
-        console.log(error);
+        console.error(error);
 
         return { ...token, error: "RefreshAccessTokenError" } satisfies TokenShape;
     }

@@ -9,19 +9,50 @@ import TeacherDashboard from "@/components/dashboard/TeacherDashboard";
 import StudentDashboard from "@/components/dashboard/StudentDashboard";
 import type { TeacherExam } from "@/components/dashboard/TeacherDashboard";
 
+type SessionShape = {
+  userId?: unknown;
+  role?: unknown;
+  hasBothRoles?: unknown;
+  user?: {
+    id?: unknown;
+    name?: unknown;
+    email?: unknown;
+    image?: unknown;
+  };
+};
+
+type StudentResultRecord = {
+  _id?: unknown;
+  examId?: unknown;
+  examTittle?: unknown;
+  submittedAt?: unknown;
+  score?: unknown;
+  totalMarks?: unknown;
+};
+
 function asString(v: unknown): string | null {
   return typeof v === "string" && v.length > 0 ? v : null;
 }
 
 function getRoleFromSession(session: unknown): "teacher" | "student" {
-  const s = session as Record<string, unknown> | null;
+  const s = session as SessionShape | null;
   const role = asString(s?.role);
   return role === "teacher" ? "teacher" : "student";
 }
 
 function getHasBothRoles(session: unknown): boolean {
-  const s = session as Record<string, unknown> | null;
+  const s = session as SessionShape | null;
   return Boolean(s?.hasBothRoles);
+}
+
+function getSessionUser(session: unknown) {
+  const s = session as SessionShape | null;
+  return {
+    id: asString(s?.userId) ?? asString(s?.user?.id),
+    name: asString(s?.user?.name),
+    email: asString(s?.user?.email),
+    image: asString(s?.user?.image),
+  };
 }
 
 function iso(v: unknown): string {
@@ -31,12 +62,18 @@ function iso(v: unknown): string {
 }
 
 function asTeacherExamDto(e: Record<string, unknown>, participants: number): TeacherExam {
+  const questionCount = Array.isArray(e["questions"]) ? e["questions"].length : 0;
+  const marksPerQues =
+    typeof e["marksPerQues"] === "number" ? e["marksPerQues"] : Number(e["marksPerQues"]) || 0;
+  const calculatedTotalMarks = questionCount * marksPerQues;
+
   return {
     _id: String(e["_id"]),
     title: String(e["title"] ?? ""),
     joinCode: String(e["joinCode"] ?? ""),
-    totalMarks:
-      typeof e["totalMarks"] === "number" ? e["totalMarks"] : Number(e["totalMarks"]) || 0,
+    totalMarks: calculatedTotalMarks || Number(e["totalMarks"]) || 0,
+    marksPerQues,
+    questionCount,
     durationMinutes:
       typeof e["durationMinutes"] === "number"
         ? e["durationMinutes"]
@@ -51,7 +88,8 @@ export default async function DashboardPage() {
   const session = await auth();
   if (!session) redirect("/signin");
 
-  const userId = asString((session as any)?.userId) ?? asString((session as any)?.user?.id);
+  const sessionUser = getSessionUser(session);
+  const userId = sessionUser.id;
   if (!userId) redirect("/signin");
 
   await dbConnect();
@@ -87,9 +125,9 @@ export default async function DashboardPage() {
       <TeacherDashboard
         hasBothRoles={hasBothRoles}
         user={{
-          name: (session as any)?.user?.name ?? "Teacher",
-          email: (session as any)?.user?.email ?? "",
-          image: (session as any)?.user?.image ?? "",
+          name: sessionUser.name ?? "Teacher",
+          email: sessionUser.email ?? "",
+          image: sessionUser.image ?? "",
           role,
         }}
         upcoming={upcoming}
@@ -105,16 +143,16 @@ export default async function DashboardPage() {
     .sort({ submittedAt: -1 })
     .lean();
 
-  const items = results.map((r: any) => {
+  const items = (results as StudentResultRecord[]).map((r) => {
     const totalMarks = Number(r.totalMarks) || 0;
     const score = Number(r.score) || 0;
     const percent = totalMarks > 0 ? Math.round((score / totalMarks) * 100) : 0;
-    const exam = r.examId as any;
+    const exam = r.examId as Record<string, unknown> | null;
     return {
       _id: String(r._id),
       examId: exam?._id ? String(exam._id) : String(r.examId),
-      title: exam?.title ?? r.examTittle ?? "Exam",
-      submittedAt: r.submittedAt ? new Date(r.submittedAt).toISOString() : null,
+      title: asString(exam?.title) ?? asString(r.examTittle) ?? "Exam",
+      submittedAt: r.submittedAt ? new Date(String(r.submittedAt)).toISOString() : null,
       score,
       totalMarks,
       percent,
@@ -130,9 +168,9 @@ export default async function DashboardPage() {
     <StudentDashboard
       hasBothRoles={hasBothRoles}
       user={{
-        name: (session as any)?.user?.name ?? "Student",
-        email: (session as any)?.user?.email ?? "",
-        image: (session as any)?.user?.image ?? "",
+        name: sessionUser.name ?? "Student",
+        email: sessionUser.email ?? "",
+        image: sessionUser.image ?? "",
         role,
       }}
       averagePercent={avg}
