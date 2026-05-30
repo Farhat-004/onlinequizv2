@@ -28,6 +28,9 @@ type TokenShape = {
     role?: string;
 };
 
+const useSecureCookies = process.env.NODE_ENV === "production";
+const sessionCookieName = `${useSecureCookies ? "__Secure-" : ""}eexam.session-token`;
+
 async function refreshAccessToken(token: TokenShape) {
     try {
         const url =
@@ -70,7 +73,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     session: { strategy: "jwt" },
     // Prevent PKCE verifier cookie from being marked `Secure` on local http,
     // which can lead to "Invalid code verifier" during OAuth callback.
-    useSecureCookies: process.env.NODE_ENV === "production",
+    useSecureCookies,
+    cookies: {
+        sessionToken: {
+            name: sessionCookieName,
+            options: {
+                httpOnly: true,
+                sameSite: "lax",
+                path: "/",
+                secure: useSecureCookies,
+            },
+        },
+    },
   providers: [
     Credentials({
       name: "Credentials",
