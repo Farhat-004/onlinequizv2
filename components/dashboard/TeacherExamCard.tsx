@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import ResultsModal from "./TeacherResultsModal";
 
 export type TeacherExam = {
   _id: unknown;
   title: string;
   joinCode: string;
+  password?: string;
   totalMarks?: number;
   marksPerQues?: number;
   questionCount?: number;
@@ -14,6 +16,7 @@ export type TeacherExam = {
   startTime: string | Date;
   endTime: string | Date;
   participants: number;
+  canCancel?: boolean;
 };
 
 function fmt(dt: string | Date) {
@@ -23,6 +26,36 @@ function fmt(dt: string | Date) {
 
 export default function TeacherExamCard({ exam }: { exam: TeacherExam }) {
   const [open, setOpen] = useState(false);
+  const [canceling, setCanceling] = useState(false);
+  const router = useRouter();
+  const canCancel = Boolean(exam.canCancel);
+
+  async function copyCredentials() {
+    const text = `Join Code: ${exam.joinCode}${exam.password ? `\nPassword: ${exam.password}` : ""}`;
+    await navigator.clipboard.writeText(text);
+  }
+
+  async function cancelExam() {
+    if (!canCancel || canceling) return;
+    const confirmed = window.confirm("Cancel this upcoming exam?");
+    if (!confirmed) return;
+
+    setCanceling(true);
+    try {
+      const res = await fetch(`/api/exams?examId=${encodeURIComponent(String(exam._id))}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.message || "Failed to cancel exam");
+      }
+      router.refresh();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Failed to cancel exam");
+    } finally {
+      setCanceling(false);
+    }
+  }
 
   return (
     <div className="group rounded-3xl border border-slate-200 bg-white/70 backdrop-blur p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
@@ -33,10 +66,19 @@ export default function TeacherExamCard({ exam }: { exam: TeacherExam }) {
           </div>
           <div className="mt-1 inline-flex items-center gap-2">
             <span className="font-mono text-lg font-bold text-slate-900">{exam.joinCode}</span>
-            <span className="rounded-full border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-[11px] font-semibold text-indigo-700">
-              Share
-            </span>
+            <button
+              type="button"
+              onClick={copyCredentials}
+              className="rounded-full border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-[11px] font-semibold text-indigo-700"
+            >
+              Copy
+            </button>
           </div>
+          {exam.password ? (
+            <div className="mt-2 text-xs text-slate-600">
+              Password: <span className="font-mono font-semibold text-slate-900">{exam.password}</span>
+            </div>
+          ) : null}
         </div>
         <div className="text-right">
           <div className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
@@ -105,6 +147,16 @@ export default function TeacherExamCard({ exam }: { exam: TeacherExam }) {
           </svg>
           View results
         </button>
+        {canCancel ? (
+          <button
+            type="button"
+            onClick={cancelExam}
+            disabled={canceling}
+            className="btn-danger"
+          >
+            {canceling ? "Canceling..." : "Cancel exam"}
+          </button>
+        ) : null}
       </div>
 
       <ResultsModal examId={String(exam._id)} open={open} onClose={() => setOpen(false)} />

@@ -9,8 +9,9 @@ export default function LandingPage() {
                         Create and take exams online
                     </h1>
                     <p className="mt-4 text-slate-700 max-w-2xl">
-                        eExam lets teachers publish quizzes with a join code and
-                        students take them securely with automatic scoring.
+                        OnlineQuiz lets teachers publish quizzes with a join
+                        code and students take them securely with automatic
+                        scoring.
                     </p>
 
                     <div className="mt-6 flex flex-wrap gap-3">

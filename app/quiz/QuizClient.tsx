@@ -1,7 +1,7 @@
 "use client"
 import MCQQuestion from "@/components/MCQQuestion";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type ExamQuestion = {
   _id: string
@@ -52,6 +52,7 @@ export default function QuizClient() {
   const [exam, setExam] = useState<Exam | null>(null)
   const [answers, setAnswers] = useState<Record<string, number | null>>({})
   const [timeLeftSec, setTimeLeftSec] = useState<number | null>(null)
+  const [timerDeadlineMs, setTimerDeadlineMs] = useState<number | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState<SubmitResponse | null>(null)
   const [blockedMessage, setBlockedMessage] = useState<string | null>(null)
@@ -92,19 +93,12 @@ export default function QuizClient() {
         for (const q of data.questions || []) initialAnswers[q._id] = null
         setAnswers(initialAnswers)
 
-        const now = Date.now()
-        const endMs = data.endTime ? new Date(data.endTime).getTime() : null
-        const durationMs =
-          typeof data.durationMinutes === "number" ? data.durationMinutes * 60_000 : null
-
-        const effectiveEndMs =
-          endMs && endMs > now + 1000 ? endMs : durationMs ? now + durationMs : null
-
-        if (effectiveEndMs) {
-          setTimeLeftSec(Math.max(0, Math.floor((effectiveEndMs - now) / 1000)))
-        } else {
-          setTimeLeftSec(null)
-        }
+        const durationSec =
+          typeof data.durationMinutes === "number" && data.durationMinutes > 0
+            ? Math.round(data.durationMinutes * 60)
+            : null
+        setTimeLeftSec(durationSec)
+        setTimerDeadlineMs(durationSec ? Date.now() + durationSec * 1000 : null)
       } catch (error) {
         const message =
           error instanceof Error ? error.message : "Failed to fetch questions"
@@ -142,24 +136,24 @@ export default function QuizClient() {
     }
   }, [answers, joinCodeStr, password, router, submitting, submitted])
 
-  // timer
-  const prevTimeLeftRef = useRef<number | null>(null)
   useEffect(() => {
-    if (timeLeftSec === null) return
+    if (timerDeadlineMs === null) return
     if (submitted) return
-    const prev = prevTimeLeftRef.current
-    prevTimeLeftRef.current = timeLeftSec
-    // Only auto-submit when we actually count down to 0 (not if we loaded an already-expired exam)
-    if (prev !== null && prev > 0 && timeLeftSec <= 0) {
-      void handleSubmit()
-      return
+    const deadlineMs = timerDeadlineMs
+
+    function tick() {
+      const remaining = Math.max(0, Math.ceil((deadlineMs - Date.now()) / 1000))
+      setTimeLeftSec(remaining)
+      if (remaining <= 0) {
+        setTimerDeadlineMs(null)
+        void handleSubmit()
+      }
     }
-    const t = setInterval(
-      () => setTimeLeftSec((s) => (s === null ? s : Math.max(0, s - 1))),
-      1000,
-    )
+
+    tick()
+    const t = setInterval(tick, 1000)
     return () => clearInterval(t)
-  }, [timeLeftSec, submitted, handleSubmit])
+  }, [timerDeadlineMs, submitted, handleSubmit])
 
   function setAnswer(questionId: string, choiceIndex: number) {
     if (submitted) return

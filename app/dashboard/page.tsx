@@ -66,11 +66,13 @@ function asTeacherExamDto(e: Record<string, unknown>, participants: number): Tea
   const marksPerQues =
     typeof e["marksPerQues"] === "number" ? e["marksPerQues"] : Number(e["marksPerQues"]) || 0;
   const calculatedTotalMarks = questionCount * marksPerQues;
+  const password = asString(e["password"]);
 
   return {
     _id: String(e["_id"]),
     title: String(e["title"] ?? ""),
     joinCode: String(e["joinCode"] ?? ""),
+    password: password && !password.startsWith("scrypt:") ? password : undefined,
     totalMarks: calculatedTotalMarks || Number(e["totalMarks"]) || 0,
     marksPerQues,
     questionCount,
@@ -81,6 +83,7 @@ function asTeacherExamDto(e: Record<string, unknown>, participants: number): Tea
     startTime: iso(e["startTime"]),
     endTime: iso(e["endTime"]),
     participants: Number(participants) || 0,
+    canCancel: new Date(String(e["startTime"])).getTime() > Date.now(),
   };
 }
 

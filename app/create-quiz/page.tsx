@@ -32,6 +32,7 @@ export default function NewExam() {
     })
   }, [numOfQues])
   const [joinCode, setJoinCode] = useState<string | null>(null)
+  const [createdPassword, setCreatedPassword] = useState<string | null>(null)
 
   async function handleCreate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -45,6 +46,7 @@ export default function NewExam() {
     const data = await res.json().catch(() => ({}))
     if (res.ok) {
       setJoinCode(data.joinCode)
+      setCreatedPassword(data.password ?? config.password)
       setCreated(true)
     } else {
       alert(data.message || "Failed to create quiz")
@@ -52,9 +54,10 @@ export default function NewExam() {
   }
   const handleCopy = () => {
     if (joinCode) {
-      navigator.clipboard.writeText(joinCode)
-        .then(() => alert('Join code copied to clipboard!'))
-        .catch(() => alert('Failed to copy join code. Please try copying manually: ' + joinCode));
+      const text = `Join Code: ${joinCode}${createdPassword ? `\nPassword: ${createdPassword}` : ""}`
+      navigator.clipboard.writeText(text)
+        .then(() => alert('Join code and password copied to clipboard!'))
+        .catch(() => alert('Failed to copy. Please copy manually: ' + text));
     }
   };
   if(!userId){
@@ -78,8 +81,11 @@ export default function NewExam() {
             <div className="text-xl font-bold text-black">Create Quiz</div>
           </div>
           {joinCode ? (
-            <div className="badge">
-              Join Code: <span className="font-mono text-black">{joinCode}</span>
+            <div className="badge flex flex-wrap gap-2">
+              <span>Join Code: <span className="font-mono text-black">{joinCode}</span></span>
+              {createdPassword ? (
+                <span>Password: <span className="font-mono text-black">{createdPassword}</span></span>
+              ) : null}
             </div>
           ) : null}
         </div>
@@ -142,8 +148,10 @@ export default function NewExam() {
               ))}
             </div>
             <div className="flex gap-2">
-              {created?<><span className="text-black font-semibold pl-5">Quiz Created Successfully! {"   "} <button type="button" onClick={handleCopy} className="btn-primary">Copy Join Code : {joinCode}</button></span>
-              <Link href="/">Return to Dashboard</Link>
+              {created?<><span className="text-green-800 font-semibold pl-5">Quiz Created Successfully! {"   "} <button type="button" onClick={handleCopy} className="btn-primary">Copy Join Code & Password : {joinCode}</button></span>
+              <Link href="/" className="btn-outline">
+                Return to Dashboard
+              </Link>
               </>:
                 (<>
               <button type="submit" className="btn-primary" disabled={created}>

@@ -1,7 +1,7 @@
 import { randomBytes } from "crypto";
 import { auth } from "@/auth";
 import { dbConnect } from "@/lib/mongodb";
-import { hashPassword, verifyPassword } from "@/lib/password";
+import { verifyPassword } from "@/lib/password";
 import ExamModel from "@/models/ExamModel";
 import QuestionModel from "@/models/QuestionModel";
 
@@ -44,6 +44,11 @@ function sessionValue(session: unknown, key: string): string | null {
   const record = session as Record<string, unknown> | null;
   const value = record?.[key];
   return typeof value === "string" && value.length > 0 ? value : null;
+}
+
+function sessionUserId(session: unknown): string | null {
+  const record = session as { userId?: unknown; user?: { id?: unknown } } | null;
+  return asString(record?.userId) || asString(record?.user?.id) || null;
 }
 
 async function createJoinCode(): Promise<string> {
@@ -161,7 +166,7 @@ export async function POST(request: Request) {
       userId,
       joinCode,
       title,
-      password: hashPassword(password),
+      password,
       durationMinutes,
       marksPerQues,
       totalMarks,
@@ -170,7 +175,7 @@ export async function POST(request: Request) {
       questions: createdQuestions.map((question) => question._id),
     });
 
-    return Response.json({ message: "created", joinCode, totalMarks }, { status: 201 });
+    return Response.json({ message: "created", joinCode, password, totalMarks }, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to create exam";
     return Response.json({ message }, { status: 400 });
@@ -209,4 +214,43 @@ export async function GET(request: Request) {
     const message = error instanceof Error ? error.message : "Failed to fetch exam";
     return Response.json({ message }, { status: 500 });
   }
+}
+
+export async function DELETE(request: Request) {
+  const session = await auth();
+  const userId = sessionUserId(session);
+  const role = sessionValue(session, "role");
+
+  if (!userId) {
+    return Response.json({ message: "Unauthorized" }, { status: 401 });
+  }
+  if (role !== "teacher") {
+    return Response.json({ message: "Only teachers can cancel exams" }, { status: 403 });
+  }
+
+  const { searchParams } = new URL(request.url);
+  const examId = asString(searchParams.get("examId"));
+  if (!examId) {
+    return Response.json({ message: "examId is required" }, { status: 400 });
+  }
+
+  await dbConnect();
+
+  const exam = (await ExamModel.findOne({ _id: examId, userId }).lean()) as ExamRecord | null;
+  if (!exam) {
+    return Response.json({ message: "Exam not found" }, { status: 404 });
+  }
+
+  const startMs = new Date(String(exam.startTime)).getTime();
+  if (!Number.isFinite(startMs) || startMs <= Date.now()) {
+    return Response.json({ message: "Only exams that have not started can be cancelled" }, { status: 409 });
+  }
+
+  const questionIds = Array.isArray(exam.questions) ? exam.questions : [];
+  await ExamModel.deleteOne({ _id: examId, userId });
+  if (questionIds.length > 0) {
+    await QuestionModel.deleteMany({ _id: { $in: questionIds } });
+  }
+
+  return Response.json({ message: "cancelled" }, { status: 200 });
 }

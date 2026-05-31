@@ -10,6 +10,7 @@ export type TeacherExam = {
   _id: unknown;
   title: string;
   joinCode: string;
+  password?: string;
   totalMarks?: number;
   marksPerQues?: number;
   questionCount?: number;
@@ -17,6 +18,7 @@ export type TeacherExam = {
   startTime: string | Date;
   endTime: string | Date;
   participants: number;
+  canCancel?: boolean;
 };
 
 export default function TeacherDashboard({
@@ -70,19 +72,19 @@ export default function TeacherDashboard({
                 </div>
 
                 <div className="min-w-0">
-                  <div className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
+                  <div className="text-xs font-semibold tracking-wide text-slate-900 uppercase">
                     Dashboard
                   </div>
-                  <h1 className="mt-1 text-2xl font-bold text-slate-900 truncate">
+                  <h1 className="mt-1 text-2xl font-bold text-black truncate">
                     Welcome, {user.name}
                   </h1>
-                  <div className="mt-1 text-sm text-slate-600 truncate">{user.email}</div>
+                  <div className="mt-1 text-sm text-slate-900 truncate">{user.email}</div>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <div className="rounded-2xl border border-slate-200 bg-white/40 backdrop-blur-md p-4 shadow-sm">
-                  <div className="flex items-center gap-2 text-xs font-medium  text-slate-600">
+                  <div className="flex items-center gap-2 text-xs font-medium  text-slate-900">
                     <span className="grid size-7 place-items-center rounded-xl bg-indigo-50 text-indigo-700">
                       <svg viewBox="0 0 24 24" className="size-4" fill="none" aria-hidden="true">
                         <path
@@ -100,10 +102,10 @@ export default function TeacherDashboard({
                     </span>
                     Total exams
                   </div>
-                  <div className="mt-2 text-2xl font-bold text-slate-900">{stats.total}</div>
+                  <div className="mt-2 text-2xl font-bold text-black">{stats.total}</div>
                 </div>
                 <div className="rounded-2xl border border-slate-200 bg-white/40 backdrop-blur-md p-4 shadow-sm">
-                  <div className="flex items-center gap-2 text-xs font-medium text-slate-600">
+                  <div className="flex items-center gap-2 text-xs font-medium text-slate-900">
                     <span className="grid size-7 place-items-center rounded-xl bg-fuchsia-50 text-fuchsia-700">
                       <svg viewBox="0 0 24 24" className="size-4" fill="none" aria-hidden="true">
                         <path
@@ -136,14 +138,14 @@ export default function TeacherDashboard({
                     </span>
                     Total participants
                   </div>
-                  <div className="mt-2 text-2xl font-bold text-slate-900">
+                  <div className="mt-2 text-2xl font-bold text-black">
                     {stats.participants}
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="mt-6 flex flex-wrap items-center gap-2 text-sm text-slate-600">
+            <div className="mt-6 flex flex-wrap items-center gap-2 text-sm text-slate-900">
               <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/30 backdrop-blur-md px-3 py-1.5 shadow-sm">
                 <span className="size-2 rounded-full bg-emerald-500" />
                 Ongoing: <span className="font-semibold text-slate-900">{ongoing.length}</span>

@@ -37,7 +37,7 @@ export default function NavBar() {
               />
             </svg>
           </span>
-          eExam
+          OnlineQuiz
         </Link>
 
         <button
