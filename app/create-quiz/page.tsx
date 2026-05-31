@@ -94,7 +94,7 @@ export default function NewExam() {
                 <input value={config.title} type='text' onChange={e => setConfig({...config, title: e.target.value})} className="input flex-1" required={true}/>
                
              <label className="text-sm font-medium mt-1 text-black w-40 ">Password :</label>
-                <input value={config.password} type='text' onChange={e => setConfig({...config, password: e.target.value})} className="input flex-1 gap-0" required={true}/>
+                <input value={config.password} type='text' onChange={e => setConfig({...config, password: e.target.value})} className="input flex-1 " required={true}/>
                
            </span>
                 
@@ -109,7 +109,7 @@ export default function NewExam() {
                 <input value={config.marksPerQues} type='number' onChange={e => setConfig({...config, marksPerQues: parseInt(e.target.value)})} className="input flex-1" required={true}/>
                 </div>
                 <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-slate-700 w-40">Total Marks:</label>
+                <label className="text-sm font-medium text-black w-40">Total Marks:</label>
                 <input value={totalMarks} type='number' className="input flex-1" readOnly/>
                 </div>
                
@@ -117,7 +117,7 @@ export default function NewExam() {
                 <label className="text-sm font-medium text-black w-40">Start Time:</label>
                 <input value={config.startTime} type='date' onChange={e => setConfig({...config, startTime: e.target.value})} className="input flex-1" required={true}/>
                 </div>
-                <div className="flex items-center gap-2 ml-16">
+                <div className="flex items-center gap-2 ">
                 <label className="text-sm font-medium text-black w-40">End Time:</label>
                 <input value={config.endTime} type='date' onChange={e => setConfig({...config, endTime: e.target.value})} className="input flex-1" required={true}/>
                 </div>
@@ -156,9 +156,6 @@ export default function NewExam() {
               </>)} 
            
             </div>
-               <Link href="/dashboard" className="text-right left-0 p-2 text-black hover:text-black">
-                Return to Dashboard
-              </Link>
           </form>
         </div>
       </main>
