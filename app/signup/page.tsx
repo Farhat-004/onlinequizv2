@@ -60,8 +60,8 @@ export default function SignUpPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center app-bg py-12 px-4 sm:px-6 lg:px-8 home-bg">
-      <div className="max-w-md w-full glass-card p-8">
-        <h1 className="text-3xl font-bold text-center text-slate-900 mb-8">Sign Up</h1>
+      <div className="max-w-md w-full glass-card border-t-4 border-t-[#d95f4f] p-8">
+        <h1 className="text-3xl font-bold text-center text-[#18312f] mb-8">Sign Up</h1>
 
         {error && (
           <div className="bg-red-50 border border-red-200 text-center text-red-700 px-4 py-3 rounded-2xl mb-4">
@@ -159,7 +159,7 @@ export default function SignUpPage() {
 
         <p className="text-center text-slate-600 mt-6">
           Already have an account?{' '}
-          <a href="/signin" className="text-indigo-700 hover:text-indigo-800 font-semibold">
+            <a href="/signin" className="text-[#0f766e] hover:text-[#115e59] font-semibold">
             Log in
           </a>
         </p>

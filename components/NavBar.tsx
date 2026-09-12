@@ -19,10 +19,10 @@ export default function NavBar() {
 
   const [mobileOpen, setMobileOpen] = useState(false);
   return (
-    <nav className="w-full sticky top-0 z-40 border-b border-slate-200 bg-white/70 backdrop-blur bg-image1">
+    <nav className="w-full sticky top-0 z-40 border-b border-[#d8dfd8] bg-[#fffdf8] bg-image1">
       <div className="mx-auto max-w-6xl px-4 py-3 flex justify-between items-center relative">
         <Link href={"/"} className="flex items-center gap-2 font-bold text-slate-900">
-          <span className="grid size-9 place-items-center rounded-2xl bg-gradient-to-br from-indigo-600 to-fuchsia-600 text-white shadow-sm">
+          <span className="grid size-9 place-items-center rounded-[2px] bg-[#0f766e] text-white shadow-sm">
             <svg viewBox="0 0 24 24" className="size-4" fill="none" aria-hidden="true">
               <path
                 d="M4 7a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V7Z"
@@ -43,7 +43,7 @@ export default function NavBar() {
         <button
           type="button"
           aria-label={mobileOpen ? "Close menu" : "Open menu"}
-          className="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-2xl border border-slate-200 bg-white text-slate-900 shadow-sm"
+          className="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-[2px] border border-[#cbd8d2] bg-[#fffdf8] text-[#18312f] shadow-sm"
           onClick={() => setMobileOpen((v) => !v)}
         >
           <span className="text-lg">{mobileOpen ? "✕" : "☰"}</span>
@@ -102,7 +102,7 @@ export default function NavBar() {
         </div>
 
         {mobileOpen ? (
-          <div className="md:hidden absolute left-0 right-0 top-full border-t border-slate-200 bg-white/90 backdrop-blur shadow z-10">
+          <div className="md:hidden absolute left-0 right-0 top-full border-t border-[#d8dfd8] bg-[#fffdf8] shadow z-10">
             <div className="p-4 flex flex-col gap-3">
               {!user ? (
                 <>

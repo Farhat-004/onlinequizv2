@@ -161,12 +161,12 @@ export default function QuizClient() {
   }
 
   return (
-    <section className="min-h-screen app-bg ">
+    <section className="min-h-screen app-bg bg-[linear-gradient(135deg,rgba(15,118,110,0.08),transparent_40%)]">
       <div className="max-w-4xl mx-auto px-4 pt-6">
-        <div className="glass-card px-5 py-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="glass-card border-t-4 border-t-[#0f766e] px-5 py-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
-            <div className="text-xs font-semibold tracking-wide text-slate-500 uppercase">Exam</div>
-            <h2 className="text-xl font-bold text-slate-900 truncate">{exam?.title || "Quiz"}</h2>
+            <div className="text-xs font-semibold tracking-wide text-[#0f766e] uppercase">Exam</div>
+            <h2 className="text-xl font-bold text-[#18312f] truncate">{exam?.title || "Quiz"}</h2>
           </div>
           <div className="badge font-mono">
             Time left: {timeLeftSec === null ? "—:—" : formatTime(timeLeftSec)}
@@ -198,7 +198,7 @@ export default function QuizClient() {
       </div>
 
       <div className="pb-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="text-slate-900">
+        <div className="text-[#18312f]">
           {submitted ? (
             <div>
               <div className="font-semibold">

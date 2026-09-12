@@ -72,8 +72,8 @@ export default function ResultsModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative w-[95vw] max-w-3xl glass-card">
+      <div className="absolute inset-0 bg-[#18312f]/70" onClick={onClose} />
+      <div className="relative w-[95vw] max-w-3xl rounded-[2px] border border-[#d8dfd8] bg-[#fffdf8] shadow-[0_24px_70px_rgba(24,49,47,0.25)]">
         <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
           <div>
             <div className="text-xs font-semibold tracking-wide text-slate-500 uppercase">Participants</div>

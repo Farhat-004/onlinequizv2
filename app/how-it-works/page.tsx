@@ -3,8 +3,8 @@ import Link from "next/link";
 export default function HowItWorksPage() {
   return (
     <div className="min-h-screen app-bg py-4 px-4">
-      <div className="max-w-2xl mx-auto glass-card p-8">
-        <h1 className="text-2xl font-bold text-slate-900 mb-2">How eExam works</h1>
+      <div className="max-w-2xl mx-auto glass-card border-t-4 border-t-[#d99a24] p-8">
+        <h1 className="text-2xl font-bold text-[#18312f] mb-2">How eExam works</h1>
         <p className="text-slate-600 text-sm mb-8">
           Short guide for teachers and students using this application.
         </p>
@@ -13,11 +13,11 @@ export default function HowItWorksPage() {
           <h2 className="text-lg font-semibold text-slate-900 mb-2">Teachers</h2>
           <ul className="list-disc pl-5 text-sm text-slate-700 space-y-2">
             <li>
-              <Link href="/signup" className="font-semibold text-indigo-700 hover:underline">
+              <Link href="/signup" className="font-semibold text-[#0f766e] hover:underline">
                 Sign up
               </Link>{" "}
               or{" "}
-              <Link href="/signin" className="font-semibold text-indigo-700 hover:underline">
+              <Link href="/signin" className="font-semibold text-[#0f766e] hover:underline">
                 sign in
               </Link>{" "}
               with a teacher account (or choose both roles if you also take exams).
