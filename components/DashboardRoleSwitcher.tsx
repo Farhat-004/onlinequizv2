@@ -34,9 +34,9 @@ export default function DashboardRoleSwitcher({ hasBothRoles }: { hasBothRoles: 
   }
 
   return (
-    <div className="mb-6 overflow-hidden rounded-2xl border border-slate-200 app-bg bg-white/70 backdrop-blur px-4 py-3 shadow-sm flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mb-6 overflow-hidden rounded-[2px] border border-[#b9cbc3] app-bg bg-[#e8f2ed] px-4 py-3 shadow-sm flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-start gap-3 text-sm text-slate-800">
-        <div className="mt-0.5 grid size-8 place-items-center rounded-xl bg-gradient-to-br from-indigo-600 to-fuchsia-600 text-white shadow-sm">
+        <div className="mt-0.5 grid size-8 place-items-center rounded-[2px] bg-[#d95f4f] text-white shadow-sm">
           <svg viewBox="0 0 24 24" className="size-4" fill="none" aria-hidden="true">
             <path
               d="M16 11c1.657 0 3-1.79 3-4s-1.343-4-3-4-3 1.79-3 4 1.343 4 3 4Z"
@@ -68,8 +68,8 @@ export default function DashboardRoleSwitcher({ hasBothRoles }: { hasBothRoles: 
           </svg>
         </div>
         <div>
-          <div className="font-semibold text-slate-900">You have teacher and student access</div>
-          <div className="text-slate-600">Choose which dashboard to show.</div>
+          <div className="font-semibold text-[#18312f]">You have teacher and student access</div>
+          <div className="text-[#58706b]">Choose which dashboard to show.</div>
         </div>
       </div>
       <div className="flex gap-2 shrink-0">
@@ -79,8 +79,8 @@ export default function DashboardRoleSwitcher({ hasBothRoles }: { hasBothRoles: 
           onClick={() => setRole("teacher")}
           className={`px-4 py-2 rounded-xl text-sm font-semibold border transition shadow-sm ${
             active === "teacher"
-              ? "bg-gradient-to-r from-indigo-600 to-fuchsia-600 text-white border-transparent"
-              : "bg-white text-slate-800 border-slate-200 hover:bg-slate-50"
+              ? "bg-[#0f766e] text-white border-transparent"
+              : "bg-[#fffdf8] text-[#35514d] border-[#cbd8d2] hover:bg-[#f4f1ea]"
           } disabled:opacity-60 disabled:shadow-none`}
         >
           {pending === "teacher" ? "…" : "Teacher"}
@@ -91,8 +91,8 @@ export default function DashboardRoleSwitcher({ hasBothRoles }: { hasBothRoles: 
           onClick={() => setRole("student")}
           className={`px-4 py-2 rounded-xl text-sm font-semibold border transition shadow-sm ${
             active === "student"
-              ? "bg-gradient-to-r from-indigo-600 to-fuchsia-600 text-white border-transparent"
-              : "bg-white text-slate-800 border-slate-200 hover:bg-slate-50"
+              ? "bg-[#0f766e] text-white border-transparent"
+              : "bg-[#fffdf8] text-[#35514d] border-[#cbd8d2] hover:bg-[#f4f1ea]"
           } disabled:opacity-60 disabled:shadow-none`}
         >
           {pending === "student" ? "…" : "Student"}

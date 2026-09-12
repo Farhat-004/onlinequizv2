@@ -33,16 +33,16 @@ export default function StudentDashboard({
   pastExams: PastExam[];
 }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br bg-image1 text-black from-slate-50 via-white to-indigo-50">
+    <div className="min-h-screen bg-[#f4f1ea] bg-image1 text-[#18312f]">
       <div className="max-w-6xl mx-auto p-6">
         <DashboardRoleSwitcher hasBothRoles={hasBothRoles} />
         <div className="grid gap-6 md:grid-cols-3 ">
-          <div className="md:col-span-2 overflow-hidden home-bg rounded-3xl border border-slate-200  backdrop-blur-md bg-white/40 shadow-sm">
+          <div className="md:col-span-2 overflow-hidden home-bg rounded-[2px] border border-[#d8dfd8] bg-[#fffdf8] shadow-sm">
             <div className="p-6 sm:p-8">
               <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-4 min-w-0">
                   <div className="relative">
-                    <div className="grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-indigo-600 to-fuchsia-600 text-white shadow-md">
+                    <div className="grid size-12 place-items-center rounded-[2px] bg-[#0f766e] text-white shadow-md">
                       {user.image ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -61,13 +61,13 @@ export default function StudentDashboard({
                     </div>
                   </div>
                   <div className="min-w-0">
-                    <div className="text-xs font-semibold tracking-wide text-black uppercase">
+                    <div className="text-xs font-semibold tracking-wide text-[#0f766e] uppercase">
                       Dashboard
                     </div>
-                    <h1 className="mt-1 text-2xl font-bold text-black truncate">
+                    <h1 className="mt-1 text-2xl font-bold text-[#18312f] truncate">
                       Welcome, {user.name}
                     </h1>
-                    <div className="mt-1 text-sm text-black truncate">{user.email}</div>
+                    <div className="mt-1 text-sm text-[#58706b] truncate">{user.email}</div>
                   </div>
                 </div>
                 <div className="shrink-0">
@@ -90,14 +90,14 @@ export default function StudentDashboard({
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-3xl home-bg border border-slate-200 bg-white/40 backdrop-blur shadow-sm">
+          <div className="overflow-hidden rounded-[2px] home-bg border border-[#d8dfd8] bg-[#fffdf8] shadow-sm">
             <div className="p-6">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="text-xs font-semibold tracking-wide text-black uppercase">
+                  <div className="text-xs font-semibold tracking-wide text-[#0f766e] uppercase">
                     Profile
                   </div>
-                  <div className="mt-1 text-lg font-semibold text-black truncate">
+                  <div className="mt-1 text-lg font-semibold text-[#18312f] truncate">
                     User details
                   </div>
                 </div>
@@ -124,10 +124,10 @@ export default function StudentDashboard({
           </div>
         </div>
 
-        <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-white/40 backdrop-blur shadow-sm">
+        <div className="mt-6 overflow-hidden rounded-[2px] border border-[#d8dfd8] bg-[#fffdf8] shadow-sm">
           <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="grid size-8 place-items-center rounded-xl bg-slate-900 text-white shadow-sm">
+              <span className="grid size-8 place-items-center rounded-[2px] bg-[#d95f4f] text-white shadow-sm">
                 <svg viewBox="0 0 24 24" className="size-4" fill="none" aria-hidden="true">
                   <path
                     d="M4 7a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V7Z"

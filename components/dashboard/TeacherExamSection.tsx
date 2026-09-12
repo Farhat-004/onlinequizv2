@@ -12,7 +12,7 @@ export default function ExamSection({
   exams: TeacherExam[];
 }) {
   return (
-    <section className="overflow-hidden rounded-3xl border home-bg border-slate-200 bg-white/70 backdrop-blur shadow-sm">
+    <section className="overflow-hidden rounded-[2px] border home-bg border-[#d8dfd8] bg-[#fffdf8] shadow-sm">
       <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
         <div className="flex items-center gap-2 min-w-0">
           <span className="grid size-8 place-items-center rounded-xl bg-slate-900 text-white shadow-sm shrink-0">
@@ -39,14 +39,14 @@ export default function ExamSection({
           <h2 className="font-semibold text-slate-900 truncate">{title}</h2>
         </div>
         <div className="text-sm text-slate-600 shrink-0">
-          <span className="inline-flex items-center rounded-full border border-slate-200 bg-white/30 backdrop-blur-md px-2.5 py-1 shadow-sm">
+          <span className="inline-flex items-center rounded-full border border-[#cbd8d2] bg-[#e8f2ed] px-2.5 py-1 shadow-sm">
             {exams.length} exams
           </span>
         </div>
       </div>
       <div className="p-5">
         {exams.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-white/50 backdrop-blur-md p-6 text-sm text-slate-600">
+          <div className="rounded-[2px] border border-dashed border-[#b9cbc3] bg-[#f4f1ea] p-6 text-sm text-[#58706b]">
             {empty}
           </div>
         ) : (

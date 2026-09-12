@@ -70,8 +70,8 @@ const handleSignin=async () => {
 }
   return (
     <div className="min-h-screen app-bg flex items-center justify-center px-4 py-12 home-bg">
-        <div className="w-full max-w-md glass-card p-8">
-          <h1 className="text-2xl font-bold mb-2 text-slate-900 text-center">Sign in</h1>
+        <div className="w-full max-w-md glass-card border-t-4 border-t-[#0f766e] p-8">
+          <h1 className="text-2xl font-bold mb-2 text-[#18312f] text-center">Sign in</h1>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -103,7 +103,7 @@ const handleSignin=async () => {
           </form>
           <div className="mt-5 flex items-center gap-3">
             <div className="h-px flex-1 bg-slate-200" />
-            <div className="text-xs font-semibold text-slate-500">OR</div>
+            <div className="text-xs font-semibold text-[#d95f4f]">OR</div>
             <div className="h-px flex-1 bg-slate-200" />
           </div>
 
@@ -123,7 +123,7 @@ const handleSignin=async () => {
 
           <p className="text-sm text-slate-600 mt-5">
             Don&apos;t have an account?{" "}
-            <Link href="/signup" className="text-indigo-700 hover:text-indigo-800 font-semibold">
+            <Link href="/signup" className="text-[#0f766e] hover:text-[#115e59] font-semibold">
               Sign up
             </Link>
           </p>

@@ -72,11 +72,14 @@ export default function JoinExam() {
 
     return (
         <div className="min-h-screen flex items-center justify-center home-bg">
-            <div className="max-w-xl w-full p-8 glass-card">
-                <h1 className="text-2xl font-semibold mb-2 text-slate-900">
+            <div className="max-w-xl w-full p-8 glass-card border-t-4 border-t-[#0f766e]">
+                <div className="mx-auto mb-4 grid size-12 place-items-center rounded-[2px] bg-[#d9eee9] text-[#0f766e]">
+                    <span className="text-xl font-bold">Q</span>
+                </div>
+                <h1 className="text-2xl text-center font-semibold mb-2 text-[#18312f]">
                     OnlineQuiz
                 </h1>
-                <p className="mb-6 text-slate-600">
+                <p className="mb-6 text-center text-slate-600">
                     Enter join code to find an exam
                 </p>
                 <form
@@ -116,11 +119,11 @@ export default function JoinExam() {
                 {/* Modal */}
                 {exam && (
                     <div
-                        className="fixed inset-0 flex items-center w-full justify-center bg-black/40 "
+                        className="fixed inset-0 z-50 flex items-center w-full justify-center bg-[#18312f]/70 p-4 "
                         onClick={() => setExam(null)}
                     >
                         <div
-                            className="w-[50vw] max-w-md glass-card p-6 bg-image1"
+                            className="w-full max-w-md glass-card p-6 bg-image1 border-t-4 border-t-[#d99a24]"
                             onClick={(e) => e.stopPropagation()}
                         >
                             <h2 className="text-lg font-semibold mb-2 text-slate-900">

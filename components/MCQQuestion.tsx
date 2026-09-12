@@ -29,17 +29,17 @@ export default function MCQQuestion({
 }) {
   function getChoiceClass(choiceIndex: number) {
     const isSelected = selectedIndex === choiceIndex
-    if (!result) return isSelected ? 'bg-green-500 border-green-200' : 'bg-white border-slate-200'
+    if (!result) return isSelected ? 'bg-[#d9eee9] border-[#0f766e]' : 'bg-[#fffdf8] border-[#d8dfd8]'
 
     const isCorrectChoice = choiceIndex === result.correctIndex
-    if (isCorrectChoice) return 'bg-emerald-50 border-emerald-200'
-    if (isSelected && !isCorrectChoice) return 'bg-red-50 border-red-200'
-    return 'bg-white border-slate-200'
+    if (isCorrectChoice) return 'bg-[#e5f3e7] border-[#9bc8a3]'
+    if (isSelected && !isCorrectChoice) return 'bg-[#fae2dc] border-[#e5a69b]'
+    return 'bg-[#fffdf8] border-[#d8dfd8]'
   }
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm mb-4">
-      <div className="mb-3 font-semibold text-slate-900">
+    <div className="rounded-[2px] border border-[#d8dfd8] bg-[#fffdf8] p-5 shadow-sm mb-4">
+      <div className="mb-3 font-semibold text-[#18312f]">
         {question?.index}. {question?.text}
       </div>
       <div className="grid gap-2">

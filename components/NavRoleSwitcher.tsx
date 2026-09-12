@@ -35,15 +35,15 @@ export default function NavRoleSwitcher() {
   }
 
   return (
-    <div className="flex items-center gap-1 rounded-2xl border border-slate-200 bg-white/70 backdrop-blur p-1 shadow-sm">
+    <div className="flex items-center gap-1 rounded-[2px] border border-[#cbd8d2] bg-[#e8f2ed] p-1 shadow-sm">
       <button
         type="button"
         disabled={pending !== null}
         onClick={() => setRole("teacher")}
         className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
           active === "teacher"
-            ? "bg-gradient-to-r from-indigo-600 to-fuchsia-600 text-white shadow-sm"
-            : "text-slate-600 hover:text-slate-900 hover:bg-white"
+            ? "bg-[#0f766e] text-white shadow-sm"
+            : "text-[#58706b] hover:text-[#18312f] hover:bg-[#fffdf8]"
         } disabled:opacity-50`}
       >
         Teacher
@@ -54,8 +54,8 @@ export default function NavRoleSwitcher() {
         onClick={() => setRole("student")}
         className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
           active === "student"
-            ? "bg-gradient-to-r from-indigo-600 to-fuchsia-600 text-white shadow-sm"
-            : "text-slate-600 hover:text-slate-900 hover:bg-white"
+            ? "bg-[#0f766e] text-white shadow-sm"
+            : "text-[#58706b] hover:text-[#18312f] hover:bg-[#fffdf8]"
         } disabled:opacity-50`}
       >
         Student

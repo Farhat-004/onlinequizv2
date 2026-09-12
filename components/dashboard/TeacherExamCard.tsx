@@ -58,7 +58,7 @@ export default function TeacherExamCard({ exam }: { exam: TeacherExam }) {
   }
 
   return (
-    <div className="group rounded-3xl border border-slate-200 bg-white/70 backdrop-blur p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+    <div className="group rounded-[2px] border border-[#d8dfd8] bg-[#fffdf8] p-5 shadow-[0_8px_24px_rgba(24,49,47,0.06)] transition hover:-translate-y-0.5 hover:shadow-md">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
@@ -69,7 +69,7 @@ export default function TeacherExamCard({ exam }: { exam: TeacherExam }) {
             <button
               type="button"
               onClick={copyCredentials}
-              className="rounded-full border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-[11px] font-semibold text-indigo-700"
+              className="rounded-full border border-[#b8ded8] bg-[#d9eee9] px-2 py-0.5 text-[11px] font-semibold text-[#0f766e]"
             >
               Copy
             </button>
@@ -127,7 +127,7 @@ export default function TeacherExamCard({ exam }: { exam: TeacherExam }) {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-slate-900 to-slate-800 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition group-hover:shadow-md hover:from-slate-800 hover:to-slate-700"
+          className="inline-flex items-center gap-2 rounded-[2px] bg-[#18312f] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition group-hover:shadow-md hover:bg-[#28534d]"
         >
           <svg viewBox="0 0 24 24" className="size-4" fill="none" aria-hidden="true">
             <path

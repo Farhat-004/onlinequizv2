@@ -60,10 +60,10 @@ export default async function QuizResultPage({ searchParams }: Props) {
     : Number(result.totalMarks) || 0
 
   return (
-    <section className="min-h-screen app-bg p-6">
+    <section className="min-h-screen app-bg bg-[linear-gradient(135deg,rgba(217,154,36,0.1),transparent_38%)] p-6">
       <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold text-slate-900">Result</h1>
-      <div className="mt-4 glass-card p-5">
+      <h1 className="text-2xl font-bold text-[#18312f]">Result</h1>
+      <div className="mt-4 glass-card border-t-4 border-t-[#d99a24] p-5">
         <div className="text-slate-900 font-semibold">{exam?.title ?? result.examTittle ?? "Exam"}</div>
         <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-slate-700">
           <span className="badge">
