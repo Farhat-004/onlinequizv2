@@ -36,6 +36,17 @@ type ResultShape = {
     totalQuestions?: unknown;
 };
 
+type IntegrityEvent = { type?: unknown; at?: unknown };
+type IntegrityPayload = {
+    tabSwitches?: unknown;
+    focusLosses?: unknown;
+    fullscreenExits?: unknown;
+    clipboardEvents?: unknown;
+    contextMenuEvents?: unknown;
+    suspiciousShortcuts?: unknown;
+    events?: IntegrityEvent[];
+};
+
 type AnswerResult = {
     questionId: string | null;
     selectedIndex: number | null;
@@ -62,6 +73,28 @@ function examTotalMarks(exam: ExamShape): number {
     const questions = Array.isArray(exam.questions) ? exam.questions : [];
     const marksPerQues = Number(exam.marksPerQues) || 0;
     return Math.round(questions.length * marksPerQues);
+}
+
+function count(value: unknown): number {
+    return Math.max(0, Math.min(1000, Math.floor(Number(value) || 0)));
+}
+
+function normalizeIntegrity(value: unknown) {
+    const input = value && typeof value === "object" ? value as IntegrityPayload : {};
+    const tabSwitches = count(input.tabSwitches);
+    const focusLosses = count(input.focusLosses);
+    const fullscreenExits = count(input.fullscreenExits);
+    const clipboardEvents = count(input.clipboardEvents);
+    const contextMenuEvents = count(input.contextMenuEvents);
+    const suspiciousShortcuts = count(input.suspiciousShortcuts);
+    const totalSignals = tabSwitches + focusLosses + fullscreenExits + clipboardEvents + contextMenuEvents + suspiciousShortcuts;
+    const riskLevel = totalSignals >= 8 || suspiciousShortcuts >= 2 ? "high" : totalSignals >= 3 ? "medium" : totalSignals > 0 ? "low" : "none";
+    const events = Array.isArray(input.events) ? input.events.slice(-100).flatMap((event) => {
+        const type = typeof event?.type === "string" ? event.type.slice(0, 40) : "";
+        const at = event?.at ? new Date(String(event.at)) : new Date();
+        return type && Number.isFinite(at.getTime()) ? [{ type, at }] : [];
+    }) : [];
+    return { riskLevel, tabSwitches, focusLosses, fullscreenExits, clipboardEvents, contextMenuEvents, suspiciousShortcuts, events };
 }
 
 function serializeExistingResult(existing: ResultShape, totalMarks?: number) {
@@ -91,6 +124,13 @@ export async function POST(request: NextRequest) {
         bodyRecord.answers && typeof bodyRecord.answers === "object" ?
             (bodyRecord.answers as Record<string, unknown>)
         :   {};
+    const integrity = normalizeIntegrity(bodyRecord.integrity);
+    const participantName = typeof bodyRecord.participantName === "string" ? bodyRecord.participantName.trim().slice(0, 120) : "";
+    const participantId = typeof bodyRecord.participantId === "string" ? bodyRecord.participantId.trim().slice(0, 80) : "";
+
+    if (!participantName || !participantId) {
+        return NextResponse.json({ message: "Participant name and ID are required" }, { status: 400 });
+    }
 
     if (!joinCode) {
         return NextResponse.json(
@@ -129,6 +169,8 @@ export async function POST(request: NextRequest) {
     const existing = (await ResultModel.findOne({
         studentId,
         examId: exam._id,
+        participantName,
+        participantId,
     }).lean()) as ResultShape | null;
     if (existing) {
         return NextResponse.json(serializeExistingResult(existing, examTotalMarks(exam)), { status: 200 });
@@ -192,6 +234,7 @@ export async function POST(request: NextRequest) {
             selectedIndex: pq.selectedIndex,
             correct: pq.correct,
         })),
+        integrity,
         submittedAt: new Date(),
     });
 

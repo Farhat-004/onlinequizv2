@@ -20,6 +20,9 @@ type ResultRecord = {
   score?: unknown;
   totalMarks?: unknown;
   submittedAt?: unknown;
+  participantName?: unknown;
+  participantId?: unknown;
+  integrity?: { riskLevel?: unknown; tabSwitches?: unknown; focusLosses?: unknown; fullscreenExits?: unknown; clipboardEvents?: unknown; contextMenuEvents?: unknown; suspiciousShortcuts?: unknown; events?: { type?: unknown; at?: unknown }[] } | null;
 };
 
 function asString(v: unknown): string | null {
@@ -82,6 +85,18 @@ export async function GET(
       totalMarks,
       percent,
       submittedAt: r.submittedAt ? new Date(String(r.submittedAt)).toISOString() : null,
+      participantName: typeof r.participantName === "string" ? r.participantName : "",
+      participantId: typeof r.participantId === "string" ? r.participantId : "",
+      integrity: r.integrity ? {
+        riskLevel: typeof r.integrity.riskLevel === "string" ? r.integrity.riskLevel : "none",
+        tabSwitches: Number(r.integrity.tabSwitches) || 0,
+        focusLosses: Number(r.integrity.focusLosses) || 0,
+        fullscreenExits: Number(r.integrity.fullscreenExits) || 0,
+        clipboardEvents: Number(r.integrity.clipboardEvents) || 0,
+        contextMenuEvents: Number(r.integrity.contextMenuEvents) || 0,
+        suspiciousShortcuts: Number(r.integrity.suspiciousShortcuts) || 0,
+        events: Array.isArray(r.integrity.events) ? r.integrity.events.slice(-100).map((event) => ({ type: String(event.type || "unknown"), at: event.at ? new Date(String(event.at)).toISOString() : null })) : [],
+      } : null,
     };
   });
 

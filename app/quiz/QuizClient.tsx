@@ -1,225 +1,512 @@
-"use client"
+"use client";
 import MCQQuestion from "@/components/MCQQuestion";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type ExamQuestion = {
-  _id: string
-  text: string
-  choices: { text: string }[]
-}
+    _id: string;
+    text: string;
+    choices: { text: string }[];
+};
 
 type Exam = {
-  _id: string
-  title: string
-  joinCode: string
-  durationMinutes?: number
-  startTime?: string
-  endTime?: string
-  marksPerQues?: number
-  totalMarks?: number
-  questions: ExamQuestion[]
-}
+    _id: string;
+    title: string;
+    joinCode: string;
+    durationMinutes?: number;
+    startTime?: string;
+    endTime?: string;
+    marksPerQues?: number;
+    totalMarks?: number;
+    questions: ExamQuestion[];
+};
 
 type SubmitResponse = {
-  message?: string
-  score: number
-  totalMarks: number
-  correctCount: number
-  totalQuestions: number
-  perQuestion: {
-    questionId: string
-    selectedIndex: number | null
-    correctIndex: number
-    correct: boolean
-  }[]
-}
+    message?: string;
+    score: number;
+    totalMarks: number;
+    correctCount: number;
+    totalQuestions: number;
+    perQuestion: {
+        questionId: string;
+        selectedIndex: number | null;
+        correctIndex: number;
+        correct: boolean;
+    }[];
+};
+
+type IntegrityEvent = { type: string; at: string };
+type IntegrityReport = {
+    tabSwitches: number;
+    focusLosses: number;
+    fullscreenExits: number;
+    clipboardEvents: number;
+    contextMenuEvents: number;
+    suspiciousShortcuts: number;
+    events: IntegrityEvent[];
+};
 
 function formatTime(totalSeconds: number) {
-  const seconds = Math.max(0, Math.floor(totalSeconds))
-  const mm = String(Math.floor(seconds / 60)).padStart(2, "0")
-  const ss = String(seconds % 60).padStart(2, "0")
-  return `${mm}:${ss}`
+    const seconds = Math.max(0, Math.floor(totalSeconds));
+    const mm = String(Math.floor(seconds / 60)).padStart(2, "0");
+    const ss = String(seconds % 60).padStart(2, "0");
+    return `${mm}:${ss}`;
 }
 
 export default function QuizClient() {
-  const searchParams = useSearchParams()
-  const router = useRouter()
+    const searchParams = useSearchParams();
+    const router = useRouter();
 
-  const joinCode = searchParams?.get("joinCode")
-  const joinCodeStr = joinCode ?? ""
-  const password = searchParams?.get("password") ?? ""
-  const [exam, setExam] = useState<Exam | null>(null)
-  const [answers, setAnswers] = useState<Record<string, number | null>>({})
-  const [timeLeftSec, setTimeLeftSec] = useState<number | null>(null)
-  const [timerDeadlineMs, setTimerDeadlineMs] = useState<number | null>(null)
-  const [submitting, setSubmitting] = useState(false)
-  const [submitted, setSubmitted] = useState<SubmitResponse | null>(null)
-  const [blockedMessage, setBlockedMessage] = useState<string | null>(null)
+    const joinCode = searchParams?.get("joinCode");
+    const joinCodeStr = joinCode ?? "";
+    const password = searchParams?.get("password") ?? "";
+    const [exam, setExam] = useState<Exam | null>(null);
+    const [answers, setAnswers] = useState<Record<string, number | null>>({});
+    const [timeLeftSec, setTimeLeftSec] = useState<number | null>(null);
+    const [timerDeadlineMs, setTimerDeadlineMs] = useState<number | null>(null);
+    const [submitting, setSubmitting] = useState(false);
+    const [submitted, setSubmitted] = useState<SubmitResponse | null>(null);
+    const [blockedMessage, setBlockedMessage] = useState<string | null>(null);
+    const [examStarted, setExamStarted] = useState(false);
+    const [participantName, setParticipantName] = useState("");
+    const [participantId, setParticipantId] = useState("");
+    const [confirmSubmit, setConfirmSubmit] = useState(false);
+    const integrityRef = useRef<IntegrityReport>({
+        tabSwitches: 0,
+        focusLosses: 0,
+        fullscreenExits: 0,
+        clipboardEvents: 0,
+        contextMenuEvents: 0,
+        suspiciousShortcuts: 0,
+        events: [],
+    });
+    const [integrity, setIntegrity] = useState<IntegrityReport>({
+        tabSwitches: 0,
+        focusLosses: 0,
+        fullscreenExits: 0,
+        clipboardEvents: 0,
+        contextMenuEvents: 0,
+        suspiciousShortcuts: 0,
+        events: [],
+    });
 
-  useEffect(() => {
-    if (!joinCodeStr) return
-    // Fetch questions using join code
-    async function fetchQuestions() {
-      try {
-        // First: if user already submitted this exam, block re-participation.
-        const statusRes = await fetch(
-          `/api/results?joinCode=${encodeURIComponent(joinCodeStr)}`,
-          { credentials: "include" },
-        )
-        if (statusRes.ok) {
-          const statusJsonUnknown: unknown = await statusRes.json().catch(() => ({}))
-          const statusJson = statusJsonUnknown as { submitted?: unknown; resultId?: unknown }
-          if (Boolean(statusJson?.submitted) && statusJson?.resultId) {
-            setBlockedMessage("You have already participated in this exam.")
-            router.replace(
-              `/quiz/result?resultId=${encodeURIComponent(String(statusJson.resultId))}`,
-            )
-            return
-          }
+    useEffect(() => {
+        if (!joinCodeStr || !examStarted) return;
+        const record = (
+            type: keyof Omit<IntegrityReport, "events">,
+            eventType: string,
+        ) => {
+            const next = {
+                ...integrityRef.current,
+                [type]: integrityRef.current[type] + 1,
+            };
+            next.events = [
+                ...integrityRef.current.events,
+                { type: eventType, at: new Date().toISOString() },
+            ].slice(-100);
+            integrityRef.current = next;
+            setIntegrity(next);
+        };
+        const onVisibility = () => {
+            if (document.visibilityState === "hidden")
+                record("tabSwitches", "tab-hidden");
+        };
+        const onBlur = () => record("focusLosses", "window-blur");
+        const onFullscreen = () => {
+            if (!document.fullscreenElement)
+                record("fullscreenExits", "fullscreen-exit");
+        };
+        const onClipboard = () => record("clipboardEvents", "clipboard");
+        const onContextMenu = (event: MouseEvent) => {
+            event.preventDefault();
+            record("contextMenuEvents", "context-menu");
+        };
+        const onKeyDown = (event: KeyboardEvent) => {
+            const key = event.key.toLowerCase();
+            const suspicious =
+                event.key === "F12" ||
+                (event.ctrlKey &&
+                    event.shiftKey &&
+                    ["i", "j", "c"].includes(key)) ||
+                (event.metaKey && event.altKey && ["i", "j"].includes(key));
+            if (suspicious) {
+                event.preventDefault();
+                record("suspiciousShortcuts", "developer-shortcut");
+            }
+        };
+        document.addEventListener("visibilitychange", onVisibility);
+        window.addEventListener("blur", onBlur);
+        document.addEventListener("fullscreenchange", onFullscreen);
+        document.addEventListener("copy", onClipboard);
+        document.addEventListener("cut", onClipboard);
+        document.addEventListener("paste", onClipboard);
+        document.addEventListener("contextmenu", onContextMenu);
+        document.addEventListener("keydown", onKeyDown);
+        return () => {
+            document.removeEventListener("visibilitychange", onVisibility);
+            window.removeEventListener("blur", onBlur);
+            document.removeEventListener("fullscreenchange", onFullscreen);
+            document.removeEventListener("copy", onClipboard);
+            document.removeEventListener("cut", onClipboard);
+            document.removeEventListener("paste", onClipboard);
+            document.removeEventListener("contextmenu", onContextMenu);
+            document.removeEventListener("keydown", onKeyDown);
+        };
+    }, [joinCodeStr, examStarted]);
+
+    useEffect(() => {
+        if (!joinCodeStr) return;
+        // Fetch questions using join code
+        async function fetchQuestions() {
+            try {
+                // First: if user already submitted this exam, block re-participation.
+                const statusRes = await fetch(
+                    `/api/results?joinCode=${encodeURIComponent(joinCodeStr)}`,
+                    { credentials: "include" },
+                );
+                if (statusRes.ok) {
+                    const statusJsonUnknown: unknown = await statusRes
+                        .json()
+                        .catch(() => ({}));
+                    const statusJson = statusJsonUnknown as {
+                        submitted?: unknown;
+                        resultId?: unknown;
+                    };
+                    if (
+                        Boolean(statusJson?.submitted) &&
+                        statusJson?.resultId
+                    ) {
+                        setBlockedMessage(
+                            "You have already participated in this exam.",
+                        );
+                        router.replace(
+                            `/quiz/result?resultId=${encodeURIComponent(String(statusJson.resultId))}`,
+                        );
+                        return;
+                    }
+                }
+
+                const response = await fetch(
+                    `/api/exams?joinCode=${encodeURIComponent(joinCodeStr)}&password=${encodeURIComponent(password)}`,
+                );
+                if (!response.ok) {
+                    const bodyUnknown: unknown = await response
+                        .json()
+                        .catch(() => ({}));
+                    const body = bodyUnknown as { message?: string };
+                    throw new Error(
+                        body?.message || "Failed to fetch questions",
+                    );
+                }
+                const data: Exam = await response.json();
+                setExam(data);
+                const initialAnswers: Record<string, number | null> = {};
+                for (const q of data.questions || [])
+                    initialAnswers[q._id] = null;
+                setAnswers(initialAnswers);
+            } catch (error) {
+                const message =
+                    error instanceof Error ?
+                        error.message
+                    :   "Failed to fetch questions";
+                console.error(message);
+            }
+        }
+        fetchQuestions();
+    }, [joinCodeStr, password, router]);
+
+    const handleSubmit = useCallback(async () => {
+        if (!joinCodeStr) return;
+        if (submitting || submitted) return;
+        setSubmitting(true);
+        try {
+            const res = await fetch("/api/results", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({
+                    joinCode: joinCodeStr,
+                    password,
+                    answers,
+                    participantName,
+                    participantId,
+                    integrity: integrityRef.current,
+                }),
+            });
+            const bodyUnknown: unknown = await res.json().catch(() => ({}));
+            const body = bodyUnknown as Partial<SubmitResponse> & {
+                message?: string;
+                resultId?: string;
+            };
+            if (!res.ok)
+                throw new Error(body?.message || "Failed to submit result");
+            setSubmitted(body as SubmitResponse);
+            if (body?.resultId) {
+                router.push(
+                    `/quiz/result?resultId=${encodeURIComponent(body.resultId)}`,
+                );
+            }
+        } catch {
+            setBlockedMessage("Failed to submit result. Please try again.");
+        } finally {
+            setSubmitting(false);
+        }
+    }, [
+        answers,
+        joinCodeStr,
+        participantId,
+        participantName,
+        password,
+        router,
+        submitting,
+        submitted,
+    ]);
+
+    useEffect(() => {
+        if (timerDeadlineMs === null) return;
+        if (submitted) return;
+        const deadlineMs = timerDeadlineMs;
+
+        function tick() {
+            const remaining = Math.max(
+                0,
+                Math.ceil((deadlineMs - Date.now()) / 1000),
+            );
+            setTimeLeftSec(remaining);
+            if (remaining <= 0) {
+                setTimerDeadlineMs(null);
+                void handleSubmit();
+            }
         }
 
-        const response = await fetch(
-          `/api/exams?joinCode=${encodeURIComponent(joinCodeStr)}&password=${encodeURIComponent(password)}`,
-        )
-        if (!response.ok) {
-          const bodyUnknown: unknown = await response.json().catch(() => ({}))
-          const body = bodyUnknown as { message?: string }
-          throw new Error(body?.message || "Failed to fetch questions")
-        }
-        const data: Exam = await response.json()
-        setExam(data)
-        const initialAnswers: Record<string, number | null> = {}
-        for (const q of data.questions || []) initialAnswers[q._id] = null
-        setAnswers(initialAnswers)
+        tick();
+        const t = setInterval(tick, 1000);
+        return () => clearInterval(t);
+    }, [timerDeadlineMs, submitted, handleSubmit]);
 
+    function setAnswer(questionId: string, choiceIndex: number) {
+        if (submitted) return;
+        setAnswers((prev) => ({ ...prev, [questionId]: choiceIndex }));
+    }
+
+    function startExam(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault();
         const durationSec =
-          typeof data.durationMinutes === "number" && data.durationMinutes > 0
-            ? Math.round(data.durationMinutes * 60)
-            : null
-        setTimeLeftSec(durationSec)
-        setTimerDeadlineMs(durationSec ? Date.now() + durationSec * 1000 : null)
-      } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "Failed to fetch questions"
-        console.error(message)
-      }
-    }
-    fetchQuestions()
-  }, [joinCodeStr, password, router])
-
-  const handleSubmit = useCallback(async () => {
-    if (!joinCodeStr) return
-    if (submitting || submitted) return
-    setSubmitting(true)
-    try {
-      const res = await fetch("/api/results", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ joinCode: joinCodeStr, password, answers }),
-      })
-      const bodyUnknown: unknown = await res.json().catch(() => ({}))
-      const body = bodyUnknown as Partial<SubmitResponse> & {
-        message?: string
-        resultId?: string
-      }
-      if (!res.ok) throw new Error(body?.message || "Failed to submit result")
-      setSubmitted(body as SubmitResponse)
-      if (body?.resultId) {
-        router.push(`/quiz/result?resultId=${encodeURIComponent(body.resultId)}`)
-      }
-    } catch {
-      setBlockedMessage("Failed to submit result. Please try again.")
-    } finally {
-      setSubmitting(false)
-    }
-  }, [answers, joinCodeStr, password, router, submitting, submitted])
-
-  useEffect(() => {
-    if (timerDeadlineMs === null) return
-    if (submitted) return
-    const deadlineMs = timerDeadlineMs
-
-    function tick() {
-      const remaining = Math.max(0, Math.ceil((deadlineMs - Date.now()) / 1000))
-      setTimeLeftSec(remaining)
-      if (remaining <= 0) {
-        setTimerDeadlineMs(null)
-        void handleSubmit()
-      }
+            exam?.durationMinutes && exam.durationMinutes > 0 ?
+                Math.round(exam.durationMinutes * 60)
+            :   null;
+        setExamStarted(true);
+        setTimeLeftSec(durationSec);
+        setTimerDeadlineMs(
+            durationSec ? Date.now() + durationSec * 1000 : null,
+        );
     }
 
-    tick()
-    const t = setInterval(tick, 1000)
-    return () => clearInterval(t)
-  }, [timerDeadlineMs, submitted, handleSubmit])
+    function requestSubmit() {
+        if (!exam || submitting || submitted) return;
+        setConfirmSubmit(true);
+    }
 
-  function setAnswer(questionId: string, choiceIndex: number) {
-    if (submitted) return
-    setAnswers((prev) => ({ ...prev, [questionId]: choiceIndex }))
-  }
+    async function enterFocusMode() {
+        if (document.documentElement.requestFullscreen)
+            await document.documentElement
+                .requestFullscreen()
+                .catch(() => undefined);
+    }
 
-  return (
-    <section className="min-h-screen app-bg bg-[linear-gradient(135deg,rgba(15,118,110,0.08),transparent_40%)]">
-      <div className="max-w-4xl mx-auto px-4 pt-6">
-        <div className="glass-card border-t-4 border-t-[#0f766e] px-5 py-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="min-w-0">
-            <div className="text-xs font-semibold tracking-wide text-[#0f766e] uppercase">Exam</div>
-            <h2 className="text-xl font-bold text-[#18312f] truncate">{exam?.title || "Quiz"}</h2>
-          </div>
-          <div className="badge font-mono">
-            Time left: {timeLeftSec === null ? "—:—" : formatTime(timeLeftSec)}
-          </div>
-        </div>
-      {blockedMessage ? (
-        <div className="mt-4 rounded-2xl border border-indigo-200 bg-indigo-50 p-3 text-sm text-indigo-800">
-          {blockedMessage}
-        </div>
-      ) : null}
-      <div className="mt-6">
-        {(() => {
-          const perQuestion = new Map<string, SubmitResponse["perQuestion"][number]>()
-          for (const pq of submitted?.perQuestion || []) perQuestion.set(pq.questionId, pq)
-          return (exam?.questions || []).map((q, index) => {
-            const pq = perQuestion.get(q._id) || null
-            return (
-              <MCQQuestion
-                key={q?._id}
-                question={{ ...q, index: index + 1 }}
-                selectedIndex={answers?.[q._id] ?? null}
-                onSelect={(choiceIndex) => setAnswer(q._id, choiceIndex)}
-                disabled={Boolean(submitting || submitted)}
-                result={pq ? { correctIndex: pq.correctIndex, selectedIndex: pq.selectedIndex } : null}
-              />
-            )
-          })
-        })()}
-      </div>
+    const signalCount = Object.entries(integrity)
+        .filter(([key]) => key !== "events")
+        .reduce((sum, [, value]) => sum + Number(value), 0);
 
-      <div className="pb-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="text-[#18312f]">
-          {submitted ? (
-            <div>
-              <div className="font-semibold">
-                Score: {submitted.score}/{submitted.totalMarks}
-              </div>
-              <div className="text-sm text-slate-700">
-                Correct: {submitted.correctCount}/{submitted.totalQuestions}
-              </div>
+    return (
+        <section className="min-h-screen app-bg bg-[linear-gradient(135deg,rgba(15,118,110,0.08),transparent_40%)]">
+            <div className="max-w-4xl mx-auto px-4 pt-6">
+                <div className="glass-card border-t-4 border-t-[#0f766e] px-5 py-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0">
+                        <div className="text-xs font-semibold tracking-wide text-[#0f766e] uppercase">
+                            Exam
+                        </div>
+                        <h2 className="text-xl font-bold text-[#18312f] truncate">
+                            {exam?.title || "Quiz"}
+                        </h2>
+                    </div>
+                    <div className="badge font-mono">
+                        Time left:{" "}
+                        {timeLeftSec === null ? "—:—" : formatTime(timeLeftSec)}
+                    </div>
+                    <button
+                        type="button"
+                        onClick={enterFocusMode}
+                        className="btn-outline text-xs"
+                    >
+                        Focus mode
+                    </button>
+                </div>
+                {signalCount > 0 ?
+                    <div className="mt-3 rounded-[2px] border border-[#f0d08a] bg-[#fff1c9] p-3 text-sm text-[#7d5b12]">
+                        Exam integrity notice: {signalCount} focus or clipboard
+                        event{signalCount === 1 ? "" : "s"} recorded for review.
+                    </div>
+                :   null}
+                {blockedMessage ?
+                    <div className="mt-4 rounded-2xl border border-indigo-200 bg-indigo-50 p-3 text-sm text-indigo-800">
+                        {blockedMessage}
+                    </div>
+                :   null}
+                <div className="mt-6">
+                    {(() => {
+                        const perQuestion = new Map<
+                            string,
+                            SubmitResponse["perQuestion"][number]
+                        >();
+                        for (const pq of submitted?.perQuestion || [])
+                            perQuestion.set(pq.questionId, pq);
+                        return (exam?.questions || []).map((q, index) => {
+                            const pq = perQuestion.get(q._id) || null;
+                            return (
+                                <MCQQuestion
+                                    key={q?._id}
+                                    question={{ ...q, index: index + 1 }}
+                                    selectedIndex={answers?.[q._id] ?? null}
+                                    onSelect={(choiceIndex) =>
+                                        setAnswer(q._id, choiceIndex)
+                                    }
+                                    disabled={Boolean(submitting || submitted)}
+                                    result={
+                                        pq ?
+                                            {
+                                                correctIndex: pq.correctIndex,
+                                                selectedIndex: pq.selectedIndex,
+                                            }
+                                        :   null
+                                    }
+                                />
+                            );
+                        });
+                    })()}
+                </div>
+
+                <div className="pb-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="text-[#18312f]">
+                        {submitted ?
+                            <div>
+                                <div className="font-semibold">
+                                    Score: {submitted.score}/
+                                    {submitted.totalMarks}
+                                </div>
+                                <div className="text-sm text-slate-700">
+                                    Correct: {submitted.correctCount}/
+                                    {submitted.totalQuestions}
+                                </div>
+                            </div>
+                        :   null}
+                    </div>
+                    <button
+                        type="button"
+                        onClick={requestSubmit}
+                        disabled={!exam || submitting || Boolean(submitted)}
+                        className="btn-primary"
+                    >
+                        {submitted ?
+                            "Submitted"
+                        : submitting ?
+                            "Submitting..."
+                        :   "Submit Result"}
+                    </button>
+                </div>
             </div>
-          ) : null}
-        </div>
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={!exam || submitting || Boolean(submitted)}
-          className="btn-primary"
-        >
-          {submitted ? "Submitted" : submitting ? "Submitting..." : "Submit Result"}
-        </button>
-      </div>
-      </div>
-    </section>
-  )
+            {exam && !examStarted && !submitted ?
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#18312f]/75 p-4">
+                    <div className="w-full max-w-md rounded-[2px] border border-[#d8dfd8] border-t-4 border-t-[#0f766e] bg-[#fffdf8] p-6 shadow-[0_24px_70px_rgba(24,49,47,0.25)]">
+                        <div className="text-xs font-semibold uppercase tracking-[0.16em] text-[#0f766e]">
+                            Before you begin
+                        </div>
+                        <h2 className="mt-2 text-2xl font-bold text-[#18312f]">
+                            {exam.title}
+                        </h2>
+                        <p className="mt-2 text-sm text-[#58706b]">
+                            Enter the identity your teacher should see with this
+                            submission.
+                        </p>
+                        <form onSubmit={startExam} className="mt-5 space-y-4">
+                            <div>
+                                <label
+                                    className="label"
+                                    htmlFor="participant-name"
+                                >
+                                    Name
+                                </label>
+                                <input
+                                    id="participant-name"
+                                    value={participantName}
+                                    onChange={(event) =>
+                                        setParticipantName(event.target.value)
+                                    }
+                                    className="input"
+                                    required
+                                    maxLength={120}
+                                />
+                            </div>
+                            <div>
+                                <label
+                                    className="label"
+                                    htmlFor="participant-id"
+                                >
+                                    Student ID
+                                </label>
+                                <input
+                                    id="participant-id"
+                                    value={participantId}
+                                    onChange={(event) =>
+                                        setParticipantId(event.target.value)
+                                    }
+                                    className="input"
+                                    required
+                                    maxLength={80}
+                                />
+                            </div>
+                            <button
+                                type="submit"
+                                className="btn-primary w-full"
+                            >
+                                Start exam
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            :   null}
+            {confirmSubmit ?
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#18312f]/75 p-4">
+                    <div className="w-full max-w-md rounded-[2px] border border-[#d8dfd8] border-t-4 border-t-[#d99a24] bg-[#fffdf8] p-6 shadow-[0_24px_70px_rgba(24,49,47,0.25)]">
+                        <h2 className="text-xl font-bold text-[#18312f]">
+                            Submit exam?
+                        </h2>
+                        <p className="mt-2 text-sm text-[#58706b]">
+                            You will not be able to change your answers after
+                            submitting.
+                        </p>
+                        <div className="mt-5 flex justify-end gap-3">
+                            <button
+                                type="button"
+                                className="btn-outline"
+                                onClick={() => setConfirmSubmit(false)}
+                            >
+                                Continue exam
+                            </button>
+                            <button
+                                type="button"
+                                className="btn-primary"
+                                onClick={() => {
+                                    setConfirmSubmit(false);
+                                    void handleSubmit();
+                                }}
+                            >
+                                Submit now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            :   null}
+        </section>
+    );
 }

@@ -17,10 +17,26 @@ const ResultSchema = new mongoose.Schema({
         ref: "Exam",
         required: true,
     },
+    participantName: { type: String, required: false, trim: true },
+    participantId: { type: String, required: false, trim: true },
     score: { type: Number, required: true },
     totalMarks: { type: Number, required: true },
     correctCount: { type: Number, required: false },
     totalQuestions: { type: Number, required: false },
+    integrity: {
+        riskLevel: {
+            type: String,
+            enum: ["none", "low", "medium", "high"],
+            default: "none",
+        },
+        tabSwitches: { type: Number, default: 0 },
+        focusLosses: { type: Number, default: 0 },
+        fullscreenExits: { type: Number, default: 0 },
+        clipboardEvents: { type: Number, default: 0 },
+        contextMenuEvents: { type: Number, default: 0 },
+        suspiciousShortcuts: { type: Number, default: 0 },
+        events: [{ type: { type: String }, at: { type: Date } }],
+    },
     answers: [
         {
             questionId: {
