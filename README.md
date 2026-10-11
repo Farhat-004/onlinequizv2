@@ -1,4 +1,4 @@
-## OnlineQuiz (eExam)
+## OnlineQuizv2
 
 Full-stack quiz/exam platform built with Next.js App Router, Auth.js/NextAuth v5, and MongoDB.
 Teachers create timed exams and share a join code; students join, attempt, submit, and view results. A single account can have both `teacher` and `student` roles with an active-role switcher.
