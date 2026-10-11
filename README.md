@@ -18,7 +18,8 @@ Teachers create timed exams and share a join code; students join, attempt, submi
 - Exam creation: title, password, duration, marks, start/end windows, MCQ questions
 - Join-by-code flow for students (join code + exam password)
 - Teacher results view (participant list + score summary)
-
+- Cheat detections. Such as tab switch, screenshot and so on.
+  
 ## Getting started
 
 ### Prerequisites
