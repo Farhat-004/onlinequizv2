@@ -64,10 +64,8 @@ export default function JoinExam() {
 
     function handleJoin() {
         if (dateExpired) return;
-        // Redirect to exam page with search params
-        router.push(
-            `/quiz?joinCode=${encodeURIComponent(code)}&password=${encodeURIComponent(password)}`,
-        );
+        const examUrl = `/quiz?joinCode=${encodeURIComponent(code)}&password=${encodeURIComponent(password)}`;
+        router.push(examUrl);
     }
 
     return (

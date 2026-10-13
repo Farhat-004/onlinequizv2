@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Types } from "mongoose";
 import { auth } from "@/auth";
 import { dbConnect } from "@/lib/mongodb";
 import { verifyPassword } from "@/lib/password";
@@ -112,9 +113,6 @@ function serializeExistingResult(existing: ResultShape, totalMarks?: number) {
 export async function POST(request: NextRequest) {
     const session = await auth();
     const studentId = getSessionUserId(session);
-    if (!studentId) {
-        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
 
     const body = await request.json().catch(() => ({}));
     const bodyRecord = body as Record<string, unknown>;
@@ -128,8 +126,8 @@ export async function POST(request: NextRequest) {
     const participantName = typeof bodyRecord.participantName === "string" ? bodyRecord.participantName.trim().slice(0, 120) : "";
     const participantId = typeof bodyRecord.participantId === "string" ? bodyRecord.participantId.trim().slice(0, 80) : "";
 
-    if (!participantName || !participantId) {
-        return NextResponse.json({ message: "Participant name and ID are required" }, { status: 400 });
+    if (!participantName && !participantId) {
+        return NextResponse.json({ message: "Participant name or ID is required" }, { status: 400 });
     }
 
     if (!joinCode) {
@@ -166,12 +164,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ message: "Exam has already ended" }, { status: 403 });
     }
 
-    const existing = (await ResultModel.findOne({
-        studentId,
-        examId: exam._id,
-        participantName,
-        participantId,
-    }).lean()) as ResultShape | null;
+    const existing = studentId ? (await ResultModel.findOne({ studentId, examId: exam._id }).lean()) as ResultShape | null : null;
     if (existing) {
         return NextResponse.json(serializeExistingResult(existing, examTotalMarks(exam)), { status: 200 });
     }
@@ -221,7 +214,7 @@ export async function POST(request: NextRequest) {
     const score = Math.round(correctCount * marksPerQues);
 
     const resultDoc = await ResultModel.create({
-        studentId,
+        studentId: studentId || new Types.ObjectId(),
         examTittle: exam.title,
         examinerId: exam.userId,
         examId: exam._id,
