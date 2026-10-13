@@ -13,6 +13,7 @@ type SessionShape = {
 type ResultRecord = {
   _id?: unknown;
   studentId?: {
+    _id?: unknown;
     name?: unknown;
     email?: unknown;
     image?: unknown;
@@ -85,8 +86,8 @@ export async function GET(
       totalMarks,
       percent,
       submittedAt: r.submittedAt ? new Date(String(r.submittedAt)).toISOString() : null,
-      participantName: typeof r.participantName === "string" ? r.participantName : "",
-      participantId: typeof r.participantId === "string" ? r.participantId : "",
+      participantName: typeof r.participantName === "string" && r.participantName ? r.participantName : typeof student?.name === "string" ? student.name : "",
+      participantId: typeof r.participantId === "string" && r.participantId ? r.participantId : student?._id ? String(student._id) : "",
       integrity: r.integrity ? {
         riskLevel: typeof r.integrity.riskLevel === "string" ? r.integrity.riskLevel : "none",
         tabSwitches: Number(r.integrity.tabSwitches) || 0,

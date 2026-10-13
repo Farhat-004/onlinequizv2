@@ -95,7 +95,7 @@ export default function ResultsModal({
                 className="absolute inset-0 bg-[#18312f]/70"
                 onClick={onClose}
             />
-            <div className="relative w-[95vw] max-w-3xl rounded-[2px] border border-[#d8dfd8] bg-[#fffdf8] shadow-[0_24px_70px_rgba(24,49,47,0.25)]">
+            <div className="relative w-[96vw] max-w-6xl rounded-[2px] border border-[#d8dfd8] bg-[#fffdf8] shadow-[0_24px_70px_rgba(24,49,47,0.25)]">
                 <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
                     <div>
                         <div className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
@@ -129,7 +129,7 @@ export default function ResultsModal({
                                 <thead className="bg-slate-50 text-slate-600">
                                     <tr>
                                         <th className="text-left font-medium px-4 py-3">
-                                            Student
+                                            Participant identity
                                         </th>
                                         <th className="text-left font-medium px-4 py-3">
                                             Score
@@ -152,14 +152,21 @@ export default function ResultsModal({
                                             className="text-slate-900 hover:bg-slate-50/70 transition"
                                         >
                                             <td className="px-4 py-3">
-                                                <div className="font-medium">
+                                                <div className="font-semibold text-[#18312f]">
                                                     {r.participantName ||
                                                         r.student?.name ||
-                                                        "Student"}
+                                                        "Name not provided"}
                                                 </div>
-                                                <div className="text-xs text-slate-600">
-                                                    ID: {r.participantId || "-"}{" "}
-                                                    · {r.student?.email || ""}
+                                                <div className="mt-1 text-xs text-slate-600">
+                                                    <span className="font-semibold text-[#35514d]">
+                                                        ID:
+                                                    </span>{" "}
+                                                    {r.participantId ||
+                                                        "Not provided"}
+                                                </div>
+                                                <div className="mt-1 text-xs text-slate-500">
+                                                    {r.student?.email ||
+                                                        "Guest attempt"}
                                                 </div>
                                             </td>
                                             <td className="px-4 py-3">

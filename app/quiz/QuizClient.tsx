@@ -1,6 +1,7 @@
 "use client";
 import MCQQuestion from "@/components/MCQQuestion";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 type ExamQuestion = {
@@ -56,6 +57,7 @@ function formatTime(totalSeconds: number) {
 export default function QuizClient() {
     const searchParams = useSearchParams();
     const router = useRouter();
+    const { data: session } = useSession();
 
     const joinCode = searchParams?.get("joinCode");
     const joinCodeStr = joinCode ?? "";
@@ -71,6 +73,9 @@ export default function QuizClient() {
     const [participantName, setParticipantName] = useState("");
     const [participantId, setParticipantId] = useState("");
     const [confirmSubmit, setConfirmSubmit] = useState(false);
+    const [identityError, setIdentityError] = useState("");
+    const authName = session?.user?.name?.trim() || "";
+    const effectiveParticipantName = authName || participantName.trim();
     const integrityRef = useRef<IntegrityReport>({
         tabSwitches: 0,
         focusLosses: 0,
@@ -228,7 +233,7 @@ export default function QuizClient() {
                     joinCode: joinCodeStr,
                     password,
                     answers,
-                    participantName,
+                    participantName: effectiveParticipantName,
                     participantId,
                     integrity: integrityRef.current,
                 }),
@@ -253,9 +258,9 @@ export default function QuizClient() {
         }
     }, [
         answers,
+        effectiveParticipantName,
         joinCodeStr,
         participantId,
-        participantName,
         password,
         router,
         submitting,
@@ -291,6 +296,11 @@ export default function QuizClient() {
 
     function startExam(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
+        if (!authName && !participantName.trim() && !participantId.trim()) {
+            setIdentityError("Enter your name or student ID to continue.");
+            return;
+        }
+        setIdentityError("");
         const durationSec =
             exam?.durationMinutes && exam.durationMinutes > 0 ?
                 Math.round(exam.durationMinutes * 60)
@@ -438,14 +448,19 @@ export default function QuizClient() {
                                 </label>
                                 <input
                                     id="participant-name"
-                                    value={participantName}
+                                    value={authName || participantName}
                                     onChange={(event) =>
                                         setParticipantName(event.target.value)
                                     }
                                     className="input"
-                                    required
+                                    disabled={Boolean(authName)}
                                     maxLength={120}
                                 />
+                                {authName ?
+                                    <p className="mt-1 text-xs text-[#58706b]">
+                                        Taken from your account.
+                                    </p>
+                                :   null}
                             </div>
                             <div>
                                 <label
@@ -461,10 +476,14 @@ export default function QuizClient() {
                                         setParticipantId(event.target.value)
                                     }
                                     className="input"
-                                    required
                                     maxLength={80}
                                 />
                             </div>
+                            {identityError ?
+                                <p className="text-sm text-[#b94b3d]">
+                                    {identityError}
+                                </p>
+                            :   null}
                             <button
                                 type="submit"
                                 className="btn-primary w-full"
